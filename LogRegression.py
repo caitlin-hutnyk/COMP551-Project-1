@@ -5,6 +5,13 @@ class Log_Regression:
 	def __init__(self):
 		pass
 
+	def cost(w, # D
+			 X, # N x D
+			 y, # N
+			 ):
+		pass
+
+
 	# training
 	# X: NxD training data
 	# y: Nx1 discrete targets (for now y in {0,1})
