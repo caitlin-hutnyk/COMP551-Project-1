@@ -5,11 +5,24 @@ class Log_Regression:
 	def __init__(self):
 		pass
 
+	# w Dx1
+	# x DxN
+	# gives decision boundary 0.5
+	def logistic(w, x):
+		return 1/(1 + np.exp(-np.dot(np.transpose(w), x)))
+
+	def softmax(z):
+		yh = np.exp(z)
+		yh /= np.sum(yh)
+		return yh
+
 	def cost(w, # D
 			 X, # N x D
 			 y, # N
 			 ):
-		pass
+		z = np.dot(X,w)
+		J = np.mean(y * np.log1p(np.exp(-z)) + (1-y)*np.log1p(np.exp(z)))
+		return J
 
 
 	# training
