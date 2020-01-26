@@ -1,0 +1,2 @@
+class Naive_Bayes:
+	
