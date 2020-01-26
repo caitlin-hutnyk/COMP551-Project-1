@@ -4,3 +4,5 @@ filename = 'ionosphere.data'
 data = np.genfromtxt(filename, delimiter=',')
 
 print(data.shape)
+print('test')
+
