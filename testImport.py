@@ -1,8 +1,9 @@
+
 import numpy as np
 
-filename = 'ionosphere.data'
+filename = 'data/ionosphere.data'
 data = np.genfromtxt(filename, delimiter=',')
 
 print(data.shape)
-print('test')
+
 

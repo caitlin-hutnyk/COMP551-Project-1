@@ -5,3 +5,5 @@ def test():
 
 def evaluate_acc(y, y_hat):
 	pass
+
+print
