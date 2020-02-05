@@ -31,10 +31,22 @@ print("Original row:")
 # to test any row, change the var
 print(data.iloc[0])
 
+# create separate y label array
+y_label = data.iloc[:, -1]
+y_label = y_label.values
+y_label = y_label.reshape((y_label.shape[0], 1))
+print(y_label.shape)
+
+# remove y label from data
+data = data.iloc[:, :-1]
+print("data shape with y removed")
+print(data.shape)
+
 categorical_feature_mask = []
 # convert categorical values to binary
 categorical_feature_mask = (data.dtypes == object)
 print(categorical_feature_mask)
+
 categorical_cols = data.columns[categorical_feature_mask].tolist()
 continuous_cols = data.columns[~categorical_feature_mask].tolist()
 
