@@ -17,7 +17,7 @@ class Log_Regression:
 	def gradient(X, y, w):
 		N,D = X.shape
 		yh = logistic(w,X)
-		grad = np.dot(np.transpose(X), yh - y)
+		grad = np.dot(X.T, yh - y) / N
 		return grad
 
 	def gradient_descent(X, y, lr, eps):
