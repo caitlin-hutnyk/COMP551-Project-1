@@ -15,21 +15,21 @@ class Naive_Bayes:
 		pass
 
 	def fit(X_cat, X_con, y):
-		n,d1 = X_cat.shape
-		d2 = X_con.shape[1]
+		n,d2 = X_con.shape
 		c = y.shape[1]
 
-		# prior
+		# prior C x 2
 		u = np.log(np.mean(y,0))[:,None]
 
 		# likelihoods
-		v = np.zeros((c,d1)) 						# for multiclass
+		v = np.zeros((c,2)) 						# for binary
 		mu, s = np.zeros((c,d2)), np.zeros((c,d2)) 	# for continuous
 
 		# compute v
 		for c_ in range(c):
 			inds = np.nonzero(y[:,c])[0]
-			
+			v[c,:] = np.mean(X_cat[inds,:], 0)
+			v /= np.sum(v)
 
 		# compute mu,s
 		for c_ in range(c):
