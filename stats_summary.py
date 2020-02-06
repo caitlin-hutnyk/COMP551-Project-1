@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+np.set_printoptions(threshold=np.inf)
+pd.set_option('display.max_columns', 500)
 # dataset1
 # import file and print samles entries and basic info
 trainfile1 = 'data/ionosphere.data'
