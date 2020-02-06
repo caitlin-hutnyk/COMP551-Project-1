@@ -18,7 +18,7 @@ print (data1_missing)
 data1_new = data1.dropna(axis=0, how="any")
 print(data1_new)
 
-print(data1_new.describe())
+print(data1_new.describe()) # show stats summary
 
 # plot histograms for features
 
