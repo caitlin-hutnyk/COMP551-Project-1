@@ -44,4 +44,6 @@ class Naive_Bayes:
 
 	def predict(X_cat, X_con):
 		# for purely continuous
-		return self.u - np.sum( np.log(s[:,None,:]) + 0.5*(((X[None,:,:] - mu[:,None,:])/s[:,None,:])**2, 2)
+		return self.u - np.sum(np.log(s[:,None,:]) \
+			+ 0.5*(((X_con[None,:,:] - mu[:,None,:])/s[:,None,:])**2, 2) \
+			+ np.sum(np.log())
