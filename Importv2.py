@@ -55,10 +55,14 @@ def read_data():
         index = index + 1
 
     # create one col for data_continuous so that we can append further cols
-    data_continuous = np.ones((instances, 1))
+    data_continuous = np.ones((data.shape[0], 1))
+
+    print("data continuous instant dtype {}".format(data_continuous.dtype))
+    print(data_continuous.shape)
+
     for i in continuous_cols_index:
-        new_col = data.values[:, i]
-        col_reshape = new_col.reshape((data.shape[0], 1))
+        new_col = data.iloc[:, i]
+        col_reshape = new_col.values.reshape((data.shape[0], 1))
         data_continuous = np.append(data_continuous, col_reshape, axis=1)
 
     # drop the first col
@@ -81,5 +85,8 @@ def read_data():
 
     # ensure split is accurate
     assert (train_validate_categorical.shape[0] + test_categorical.shape[0] == instances)
+    print("from import datatypes")
+    print(train_validate_categorical.dtype)
+    print(train_validate_continuous.dtype)
 
     return y_label, test_categorical, test_continuous, train_validate_categorical, train_validate_continuous
