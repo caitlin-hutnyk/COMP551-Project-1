@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import LabelEncoder
+
 
 # will allow dataset to be specified by user later
 # dataset 1: ionosphere data, uncomment to use
@@ -29,10 +31,11 @@ def read_data():
     print("Rows dropped: %d" % (old_instances - instances))
     print(data.shape)
 
-    # create separate y label array
-    y_label = data.iloc[:, -1]
-    y_label = y_label.values
-    y_label = y_label.reshape((y_label.shape[0], 1))
+    # create separate y label array and encode as 0/1
+    y_label = data.values[:, -1]
+    label_encoder = LabelEncoder()
+    y_label = label_encoder.fit_transform(y_label)
+    y_label = y_label.reshape(y_label.shape[0], 1)
 
     # remove y label from data
     data = data.iloc[:, :-1]
@@ -78,15 +81,28 @@ def read_data():
     mask = np.random.rand(data_categorical.shape[0]) < 0.8
     train_validate_categorical = data_categorical[mask]
     train_validate_continuous = data_continuous[mask]
+    train_val_y = y_label[mask]
 
     # final test data
     test_categorical = data_categorical[~mask]
     test_continuous = data_continuous[~mask]
+    test_y = y_label[~mask]
 
     # ensure split is accurate
     assert (train_validate_categorical.shape[0] + test_categorical.shape[0] == instances)
+    print("instances {}".format(instances))
     print("from import datatypes")
     print(train_validate_categorical.dtype)
     print(train_validate_continuous.dtype)
 
-    return y_label, test_categorical, test_continuous, train_validate_categorical, train_validate_continuous
+    # putting back together to test --
+    X = np.concatenate((train_validate_categorical, train_validate_continuous), axis=1)
+    X = np.concatenate((X, train_val_y), axis=1)
+
+    print("datatypes")
+    print(X.dtype)
+
+
+    print(test_y.dtype)
+
+    return test_categorical, test_continuous, test_y, X
