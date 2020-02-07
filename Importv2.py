@@ -16,8 +16,6 @@ columns = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-
            'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country',
            'salary']
 
-filename = 'poker'
-
 
 def read_data():
     # read in data and replace unknown values with NaN to be easily removed
