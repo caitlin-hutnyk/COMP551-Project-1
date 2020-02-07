@@ -10,23 +10,26 @@ class Log_Regression:
     # w Dx1
     # x DxN
     # gives decision boundary 0.5
-    def logistic(self, w, x):
-        return 1 / (1 + np.exp(-np.dot(np.transpose(w), x)))
+    def logistic(self, w, X):
+        return 1 / (1 + np.exp(-np.dot(X, w)))
 
     # added a / N to the grad definition as per lec 7 slide 5.1
     def gradient(self, X, y, w):
         N, D = X.shape
         yh = self.logistic(w, X)
-        grad = np.dot(np.transpose(X), yh - y) / N
+        grad = (1/N) * np.dot(np.transpose(X), yh - y)
         return grad
 
     def gradient_descent(self, X, y, lr, eps):
         N, D = X.shape
-        w = np.zeros(D)
+        w = np.zeros((D, 1))
         g = np.inf
-        while np.linalg.norm(g) > eps:
+        its = 0
+        while np.linalg.norm(g) > eps and its < 5000:
             g = self.gradient(X, y, w)
             w = w - lr * g
+            its = its + 1
+        print("Terminating gradient descent at iterations: {}".format(its))
         return w
 
     # for multiclass classification
@@ -49,12 +52,16 @@ class Log_Regression:
     def fit(self, X, y):
         self.w = self.gradient_descent(X, y, self.learning_rate, self.stop_cond)
 
+
     # predict and return y_hat
     # X: NxD test data
     def predict(self, X):
         n, d = np.shape(X)
         y_hat = np.zeros((n, 1))
         log = self.logistic(self.w, X)
+        print("SHAPE OF LOG")
+        print(log.shape)
+
         for i in range(n):
             if log[i] >= 0.5:
                 y_hat[i] = 1
