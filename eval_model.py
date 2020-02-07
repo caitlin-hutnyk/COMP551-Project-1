@@ -19,10 +19,17 @@ def evaluate_acc(y, y_hat):
 
 def k_fold(X, k):
     # split into training and validation set by 1/k
-    k_mask = np.random.rand(X.shape[0]) < (1 / k)
-    train = X[~k_mask]
-    validation = X[k_mask]
-    return train, validation
+    split_list = []
+    size = math.floor(X.shape[0]/k)
+    for i in range(k-1):
+    	validate = X[i*size::(i+1)*size]
+    	train = np.delete(X, [i*size, (i+1)*size], 0)
+    	size.append((train,validate))
+    train = X[::(k-1)*size]
+    validate = X[(k-1)*size::]
+    split_list.append((train,validate))
+
+    return split_list
 
 def main():
     y_label, test_categorical, test_continuous, \
