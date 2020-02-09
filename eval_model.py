@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from numpy import ma, math
 
-from Importv2 import read_data
+from testImport import read_data
 import LogRegression
 
 # returns performance rate
