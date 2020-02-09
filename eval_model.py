@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from numpy import ma, math
 
-from Importv2 import read_data
+from testImport import read_data
 import LogRegression
 
 # returns performance rate
@@ -101,7 +101,7 @@ def find_model(X_train, trial_val_y, X_test, test_y):
 	return hyper_params[best_index]
 
 def main():
-	X_train, trial_val_y, X_test, test_y = read_data(1)
+	X_train, trial_val_y, X_test, test_y = read_data(2, 1)
 	print("shapes!!! \n\n\n")
 	print(X_train.shape)
 	print(X_test.shape)
@@ -135,4 +135,4 @@ def test_2():
 	print(train_validate_categorical)
 
 if __name__ == "__main__":
-	test_2()
+	main()
