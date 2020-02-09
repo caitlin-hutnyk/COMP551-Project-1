@@ -1,12 +1,12 @@
 import numpy as np
 import pandas as pd
-import constant
+import constants
 
 def read_data(which, type_):
 	np.set_printoptions(threshold=np.inf)
 	pd.set_option('display.max_columns', 500)
 
-	if which == constant.IONOSPHERE:
+	if which = constants.IONOSPHERE:
 		filename = 'data/ionosphere.data'
 		columns = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
 		         21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 'assessment']
@@ -35,7 +35,7 @@ def read_data(which, type_):
 		train_x_cat = np.array(data_new_arr[:, 6:-2])
 
 
-	elif which == constant.CENSUS:
+	elif which = constants.CENSUS:
 		# trainfile = 'data/ionosphere.data'
 		trainfile = 'data/adult.data'
 		testfile = 'data/adult.test'
@@ -77,14 +77,10 @@ def read_data(which, type_):
 		test_x_con = np.array(test_new_arr[:, :6])
 		test_x_cat = np.array(test_new_arr[:, 6:-2])
 
-		print(data_new_arr.shape)
-
 		if type_:
-			return np.array(data_new_arr[:,:-2]), train_y, np.array(test_new_arr[:,:-2]), test_y
+			return np.array(data_new_arr[:,-2]), train_y, np.array(test_new_arr[:,-2]), test_y
 		return train_x_con, train_x_cat, train_y, test_x_con, test_x_cat, test_y
 
-	elif which == constant.POKER:
-		pass
+	elif which = constants.POKER:
 
-	elif which == constant.CREDIT:
-		pass
+	elif which = constants.CREDIT:

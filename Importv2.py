@@ -7,10 +7,10 @@ from sklearn.preprocessing import LabelEncoder
 
 # will allow dataset to be specified by user later
 # dataset 1: ionosphere data, uncomment to use
-filename = 'data/ionosphere.data'
-columns = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-         21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 'assessment']
-columns = list(map(str, columns))
+# filename = 'data/ionosphere.data'
+# columns = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+#          21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 'assessment']
+# columns = list(map(str, columns))
 
 # dataset 2: census data, uncomment to use
 filename = 'data/adult.data'
