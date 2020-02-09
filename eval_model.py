@@ -54,14 +54,7 @@ def k_fold(X, k):
 def find_model(X_train, trial_val_y, X_test, test_y):
 	train_validate_list = k_fold(np.append(X_train, trial_val_y, axis=1), 5)
 
-	training_set_count = 1
-	best_model = -1
-	best_perf = -1
-
-	hyper_params = [2,1.5,1,0.5,0.1]
-
-	# models has (model, performance)
-	# initialized to 0
+	hyper_params = [2, 1.5, 1, 0.5, 0.1]
 
 	performance = []
 
@@ -81,12 +74,11 @@ def find_model(X_train, trial_val_y, X_test, test_y):
 			# print("train shape {} type {}" .format(train_X.shape, train_X.dtype))
 			# print("v shape {} type {}".format(validate_X.shape, validate_X.dtype))
 
-			model = LogRegression.Log_Regression(hyper_params[h], 0.001)
+			model = LogRegression.Log_Regression(hyper_params[h], 0.005)
 			model.fit(train_X, train_y)
 			y_h = model.predict(validate_X)
 
 			# print("training set {} ".format(training_set_count))
-			training_set_count = training_set_count + 1
 			# print("y label: {}" .format(train_y.dtype))
 			# print("y predicted: {}" .format(y_h.dtype))
 
@@ -98,9 +90,11 @@ def find_model(X_train, trial_val_y, X_test, test_y):
 
 	best_perf = 0
 	best_index = 0
+	print(hyper_params)
+	print(performance)
 	for i in range(len(hyper_params)):
 		print("" + str(performance[i]) + ", " + str(hyper_params[i]))
-		if performance[i] > best_perf:
+		if performance[i] >= best_perf:
 			best_perf = performance[i]
 			best_index = i
 
@@ -108,6 +102,9 @@ def find_model(X_train, trial_val_y, X_test, test_y):
 
 def main():
 	X_train, trial_val_y, X_test, test_y = read_data(1)
+	print("shapes!!! \n\n\n")
+	print(X_train.shape)
+	print(X_test.shape)
 	# X = np.concatenate((train_validate_categorical, train_validate_continuous), axis=1)
 
 	# do k-fold split on the training data to get k folds of train and validate
@@ -124,11 +121,18 @@ def main():
 # quick testing to make sure stuff is working
 def q_test():
 	X_train, trial_val_y, X_test, test_y = read_data(1)
+	print("shapes!!! \n\n\n")
+	print(X_train.shape)
+	print(X_test.shape)
 	log_r = LogRegression.Log_Regression(1, 0.005)
 	log_r.fit(X_train, trial_val_y)
 	y_h = log_r.predict(X_test)
 	error = evaluate_acc(test_y, y_h)
 	print("Final success: " + str(error) + " incorrect out of " + str(y_h.shape[0]))
 
+def test_2():
+	train_validate_continuous, train_validate_categorical, train_val_y, test_continuous, test_categorical, test_y = read_data(0)
+	print(train_validate_categorical)
+
 if __name__ == "__main__":
-	main()
+	test_2()
