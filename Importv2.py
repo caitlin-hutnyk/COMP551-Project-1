@@ -15,11 +15,12 @@ from sklearn.preprocessing import LabelEncoder
 # dataset 2: census data, uncomment to use
 filename = 'data/adult.data'
 columns = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation',
-           'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country',
-           'salary']
+          'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country',
+          'salary']
 
-
-def read_data():
+# type_ == 1 if logregression
+# type_ == 0 if nb
+def read_data(type_):
     print("Reading in {}".format(filename))
     # read in data and replace unknown values with NaN to be easily removed
     data = pd.read_csv(filename, sep=",", na_values=[" ?", "?"], names=columns)
@@ -96,8 +97,10 @@ def read_data():
     assert (train_validate_categorical.shape[0] + test_categorical.shape[0] == instances)
 
     # putting back together to test --
-    X = np.concatenate((train_validate_categorical, train_validate_continuous), axis=1)
-    X = np.concatenate((X, train_val_y), axis=1)
+    X_train = np.concatenate((train_validate_categorical, train_validate_continuous), axis=1)
+    X_test = np.concatenate((test_categorical, test_continuous), axis=1)
 
-    # return test_categorical, test_continuous, test_y, X
+    # different return types for logregression and bayes
+    if type_:
+    	return X_train, train_val_y, X_test, test_y
     return train_validate_continuous, train_validate_categorical, train_val_y, test_continuous, test_categorical, test_y

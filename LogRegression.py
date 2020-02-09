@@ -17,7 +17,7 @@ class Log_Regression:
     def gradient(self, X, y, w):
         N, D = X.shape
         yh = self.logistic(w, X)
-        grad = (1/N) * np.dot(np.transpose(X), yh - y)
+        grad = (1/N) * np.dot(X.T, yh - y)
         return grad
 
     def gradient_descent(self, X, y, lr, eps):
@@ -25,8 +25,9 @@ class Log_Regression:
         w = np.zeros((D, 1))
         g = np.inf
         its = 0
-        while np.linalg.norm(g) > eps and its < 5000:
+        while np.linalg.norm(g) > eps and its < 20000:
             g = self.gradient(X, y, w)
+            # print(np.linalg.norm(g))
             w = w - lr * g
             its = its + 1
         print("Terminating gradient descent at iterations: {}".format(its))
@@ -59,8 +60,8 @@ class Log_Regression:
         n, d = np.shape(X)
         y_hat = np.zeros((n, 1))
         log = self.logistic(self.w, X)
-        print("SHAPE OF LOG")
-        print(log.shape)
+        # print("SHAPE OF LOG")
+        # print(log.shape)
 
         for i in range(n):
             if log[i] >= 0.5:

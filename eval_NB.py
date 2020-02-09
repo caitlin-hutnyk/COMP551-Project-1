@@ -4,7 +4,7 @@ import NBv2 as nb
 import constant
 
 def main():
-    X_con, X_cat, Y, test_con, test_cat, test_y = read_data()
+    X_con, X_cat, Y, test_con, test_cat, test_y = read_data(0)
     print("Y, x_con, x_cat")
     print(Y.shape)
     print(X_con.shape)
