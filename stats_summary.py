@@ -4,6 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 np.set_printoptions(threshold=np.inf)
 pd.set_option('display.max_columns', 500)
+
 # dataset1
 # import file and print samles entries and basic info
 trainfile1 = 'data/ionosphere.data'
@@ -71,5 +72,19 @@ data3_new["CLASS"].value_counts()
 
 # dataset4
 trainfile4 = 'data/crx.data'
-columns3 = ['S1','C1','S2','C2','S3','C3','S4','C4','S5','C5','CLASS']
-data4 = pd.read_csv(trainfile4, sep=",", header=None)
+data4 = pd.read_csv(trainfile4, sep=",", na_values=[" ?", "?"], header=None)
+print(data4.shape)
+data4_missing = data4[data4.isna().any(axis=1)]
+print(data4_missing)
+print(data4_missing.shape)
+data4_new = data4.dropna(axis=0, how="any")
+print(data4_new)
+print(data4_new.shape)
+
+print(data4_new.describe())
+
+sns.set(style="ticks", color_codes=True)
+data4_new.hist(bins=50, figsize=(20,15))
+# sns.catplot(x="CLASS", kind="count", palette="ch:.25", data=data4_new)
+plt.show()
+data4_new[16].counts()
