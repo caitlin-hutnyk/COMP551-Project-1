@@ -27,6 +27,8 @@ sns.set(style="ticks", color_codes=True)
 
 data1_new.hist(bins=50, figsize=(20,15))
 sns.catplot(x=34, kind="count", palette="ch:.25", data=data1_new)
+plt.scatter(data1_new[2], data1_new[3], color='r')
+
 plt.show()
 data1_new[34].value_counts()
 
@@ -48,6 +50,7 @@ print(data2_new.describe())
 sns.set(style="ticks", color_codes=True)
 data2_new.hist(bins=50, figsize=(20,15))
 sns.catplot(x="salary", kind="count", palette="ch:.25", data=data2_new)
+plt.scatter(data2_new.age, data2_new.education-num color='r')
 plt.show()
 data2_new["salary"].value_counts()
 
@@ -88,3 +91,4 @@ data4_new.hist(bins=50, figsize=(20,15))
 # sns.catplot(x="CLASS", kind="count", palette="ch:.25", data=data4_new)
 plt.show()
 data4_new[16].counts()
+
