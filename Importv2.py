@@ -20,6 +20,7 @@ columns = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-
 
 
 def read_data():
+    print("Reading in {}".format(filename))
     # read in data and replace unknown values with NaN to be easily removed
     data = pd.read_csv(filename, sep=",", na_values=[" ?", "?"], names=columns)
     old_instances = data.shape[0]
@@ -33,9 +34,11 @@ def read_data():
 
     # create separate y label array and encode as 0/1
     y_label = data.values[:, -1]
+    print("Y: {}".format(y_label[0]))
     label_encoder = LabelEncoder()
     y_label = label_encoder.fit_transform(y_label)
     y_label = y_label.reshape(y_label.shape[0], 1)
+    print("is Y: {}".format(y_label[0]))
 
     # remove y label from data
     data = data.iloc[:, :-1]
@@ -74,6 +77,7 @@ def read_data():
     # here we have all our continuous vars in one array, so we can drop them
     ct = ColumnTransformer([('dummy_col', OneHotEncoder(sparse=False), categorical_cols)], remainder='passthrough')
     data_categorical = ct.fit_transform(data)
+    data_categorical = data_categorical.astype(int)
 
     # we now have our data separated as continuous and categorical
 
@@ -90,19 +94,10 @@ def read_data():
 
     # ensure split is accurate
     assert (train_validate_categorical.shape[0] + test_categorical.shape[0] == instances)
-    print("instances {}".format(instances))
-    print("from import datatypes")
-    print(train_validate_categorical.dtype)
-    print(train_validate_continuous.dtype)
 
     # putting back together to test --
     X = np.concatenate((train_validate_categorical, train_validate_continuous), axis=1)
     X = np.concatenate((X, train_val_y), axis=1)
 
-    print("datatypes")
-    print(X.dtype)
-
-
-    print(test_y.dtype)
-
-    return test_categorical, test_continuous, test_y, X
+    # return test_categorical, test_continuous, test_y, X
+    return train_validate_continuous, train_validate_categorical, train_val_y, test_continuous, test_categorical, test_y
