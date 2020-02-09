@@ -82,5 +82,7 @@ def read_data(which, type_):
 		return train_x_con, train_x_cat, train_y, test_x_con, test_x_cat, test_y
 
 	elif which == constants.POKER:
+		pass
 
 	elif which == constants.CREDIT:
+		pass
