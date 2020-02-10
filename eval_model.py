@@ -1,8 +1,7 @@
 import numpy as np
 import pandas as pd
-from numpy import ma, math
 
-from testImport import read_data
+from testImport import read_data, less_cases_together
 import LogRegression
 
 def convert_y(y):
@@ -35,7 +34,7 @@ def evaluate_acc(y, y_hat):
 # receoves X and Y appended to the end
 def k_fold(x, y, k):
 	split_list = []
-	size = math.floor(x.shape[0] / k)
+	size = int(x.shape[0] / k)
 
 	for i in range(k-1):
 		x_v = x[i*size : (i+1)*size]
@@ -67,7 +66,7 @@ def k_fold(x, y, k):
 # for naive bayes, having x_con and x_cat split up
 def k_fold_split(x1, x2, y, k):
 	split_list = []
-	size = math.floor(x.shape[0] / k)
+	size = int(x.shape[0] / k)
 
 	for i in range(k-1):
 		x1_v = x2[i*size : (i+1)*size]
@@ -175,18 +174,27 @@ def main():
 
 # quick testing to make sure stuff is working
 def q_test():
-	X_train, trial_val_y, X_test, test_y = read_data(3,1)
+	X_train, trial_val_y, X_test, test_y = read_data(2,1)
 	print(X_train.shape)
 	print(X_test.shape)
-	log_r = LogRegression.Log_Regression(0.1, 0.005, 10000)
+
+
+	X_train, trial_val_y = less_cases_together(X_train, trial_val_y, 500)
+	log_r = LogRegression.Log_Regression(1, 0.005, 10000)
 	log_r.fit(X_train, trial_val_y)
 	y_h = log_r.predict(X_test)
 	error = evaluate_acc(test_y, y_h)
 	print("Final successrate : " + str(error))
+
+	log_r_reg = LogRegression.Log_Regression(1, 0.005, 10000, 5)
+	log_r_reg.fit(X_train, trial_val_y)
+	y_h = log_r_reg.predict(X_test)
+	error = evaluate_acc(test_y, y_h)
+	print("Final successrate for regularized: " + str(error))
 
 def test_2():
 	train_validate_continuous, train_validate_categorical, train_val_y, test_continuous, test_categorical, test_y = read_data(0)
 	print(train_validate_categorical)
 
 if __name__ == "__main__":
-	main()
+	q_test()

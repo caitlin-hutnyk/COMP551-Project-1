@@ -2,22 +2,35 @@ import numpy as np
 
 class Log_Regression:
 
-    def __init__(self, lr, eps, m):
+	# lr is learning rate alpha
+	# eps is stopping condition (norm smaller than eps)
+	# m is the max iterations in gradient descent to stop (regardless of eps)
+	# reg is the regularization constant lambda, defaults to -1
+	# if lambda -1 then its just regular logistic regression
+    def __init__(self, lr, eps, m, reg = -1):
         self.learning_rate = lr
         self.stop_cond = eps
         self.max_iterations = m
+        self.reg_constant = reg
         self.w = -1
 
     # w Dx1
-    # x DxN
+    # x NxD
     # gives decision boundary 0.5
     def logistic(self, w, X):
-        return 1 / (1 + np.exp(-np.dot(X, w)))
+    	if self.reg_constant != -1:
+    		# print(w.shape)
+    		# print(w.T.shape)
+    		# print(np.exp(-np.dot(X,w)).shape)
+    		return 1 / (1 + np.exp(-np.dot(X, w))) + np.full((X.shape[0],1), self.reg_constant / 2 * np.dot(w.T, w))
+    	return 1 / (1 + np.exp(-np.dot(X, w)))
 
     # added a / N to the grad definition as per lec 7 slide 5.1
     def gradient(self, X, y, w):
         N, D = X.shape
         yh = self.logistic(w, X)
+        # print('yh:')
+        # print(yh)
         grad = (1/N) * np.dot(X.T, yh - y)
         return grad
 
@@ -61,6 +74,8 @@ class Log_Regression:
         n, d = np.shape(X)
         y_hat = np.zeros((n, 1))
         log = self.logistic(self.w, X)
+
+        print(log)
 
         # categorical!!
         if log.shape[1] != 1:
