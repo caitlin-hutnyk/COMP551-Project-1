@@ -1,14 +1,25 @@
 import numpy as np
-from Importv2 import read_data
+from testImport import read_data
 import NBv2 as nb
 import constant
 
+# returns performance rate
+def evaluate_acc(y, y_hat):
+    success = 0
+    if np.shape(y) != np.shape(y_hat):
+        print("error: y != y_h")
+        # raise SizeError('Size y != size yh')
+    for i in range(np.shape(y)[0]):
+        if y[i] == y_hat[i]:
+            success += 1
+    return success/(np.shape(y)[0])
+
 def main():
-    X_con, X_cat, Y, test_con, test_cat, test_y = read_data(0)
-    print("Y, x_con, x_cat")
-    print(Y.shape)
-    print(X_con.shape)
-    print(X_cat.shape)
+    X_con, X_cat, Y, test_con, test_cat, test_y = read_data(2,0)
+    # print("Y, x_con, x_cat")
+    # print(Y.shape)
+    # print(X_con.shape)
+    # print(X_cat.shape)
     X = np.append(X_cat, X_con, axis=1)
 
     prior = nb.computePrior(Y, constant.CENSUS)
@@ -24,12 +35,13 @@ def main():
             prior_i = prior[i]
             posterior[n][1] = nb.posterior(prior_i, w_i, Xn)
 
+    '''
     for i in range (100):
         print("posterior of x given 0: {}, of x given 1: {}".format(posterior[i][0], posterior[i][1]))
-
+    '''
     y_hat = nb.predict(posterior)
-    correct = nb.assess(Y, y_hat)
-    print("{}/{} correct predictions made".format(correct, X.shape[0]))
+    rate = evaluate_acc(y, y_hat)
+    print("success rate: " + str(rate))
 
 
 

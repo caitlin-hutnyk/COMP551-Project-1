@@ -60,9 +60,17 @@ class Log_Regression:
         n, d = np.shape(X)
         y_hat = np.zeros((n, 1))
         log = self.logistic(self.w, X)
-        # print("SHAPE OF LOG")
-        # print(log.shape)
 
+        # categorical!!
+        if log.shape[1] != 1:
+        	y_hat = np.zeros(np.shape(log))
+        	for i in range(n):
+        		index = np.argmax(log[i])
+        		y_hat[i,index] = 1
+        	return y_hat
+
+
+        # binary
         for i in range(n):
             if log[i] >= 0.5:
                 y_hat[i] = 1

@@ -2,8 +2,19 @@ import numpy as np
 import pandas as pd
 from numpy import ma, math
 
-from Importv2 import read_data
+from testImport import read_data
 import LogRegression
+
+def convert_y(y):
+	n,c = y.shape
+	print(y.shape)
+	result = []
+	for ar in y:
+		for j in range(len(ar)):
+			if ar[j]:
+				result.append(j)
+	print(len(result))
+	return np.array(result)
 
 # returns performance rate
 def evaluate_acc(y, y_hat):
@@ -11,6 +22,9 @@ def evaluate_acc(y, y_hat):
 	if np.shape(y) != np.shape(y_hat):
 		print("error: y != y_h")
 		# raise SizeError('Size y != size yh')
+	if y.shape[1] != 1:
+		y = convert_y(y)
+		y_hat = convert_y(y_hat)
 	for i in range(np.shape(y)[0]):
 		if y[i] == y_hat[i]:
 			success += 1
@@ -101,10 +115,12 @@ def find_model(X_train, trial_val_y, X_test, test_y):
 	return hyper_params[best_index]
 
 def main():
-	X_train, trial_val_y, X_test, test_y = read_data(1)
+	X_train, trial_val_y, X_test, test_y = read_data(3,1)
 	print("shapes!!! \n\n\n")
 	print(X_train.shape)
 	print(X_test.shape)
+	print(trial_val_y.shape)
+	print(test_y.shape)
 	# X = np.concatenate((train_validate_categorical, train_validate_continuous), axis=1)
 
 	# do k-fold split on the training data to get k folds of train and validate
@@ -120,19 +136,18 @@ def main():
 
 # quick testing to make sure stuff is working
 def q_test():
-	X_train, trial_val_y, X_test, test_y = read_data(1)
-	print("shapes!!! \n\n\n")
+	X_train, trial_val_y, X_test, test_y = read_data(3,1)
 	print(X_train.shape)
 	print(X_test.shape)
-	log_r = LogRegression.Log_Regression(1, 0.005)
+	log_r = LogRegression.Log_Regression(0.1, 0.005)
 	log_r.fit(X_train, trial_val_y)
 	y_h = log_r.predict(X_test)
 	error = evaluate_acc(test_y, y_h)
-	print("Final success: " + str(error) + " incorrect out of " + str(y_h.shape[0]))
+	print("Final successrate : " + str(error))
 
 def test_2():
 	train_validate_continuous, train_validate_categorical, train_val_y, test_continuous, test_categorical, test_y = read_data(0)
 	print(train_validate_categorical)
 
 if __name__ == "__main__":
-	test_2()
+	q_test()
