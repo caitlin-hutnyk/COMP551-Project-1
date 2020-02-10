@@ -64,6 +64,42 @@ def k_fold(x, y, k):
 
 	return split_list
 
+# for naive bayes, having x_con and x_cat split up
+def k_fold_split(x1, x2, y, k):
+	split_list = []
+	size = math.floor(x.shape[0] / k)
+
+	for i in range(k-1):
+		x1_v = x2[i*size : (i+1)*size]
+		x2_v = x2[i*size : (i+1)*size]
+		y_v = y[i*size : (i+1)*size]
+
+		x1_t = np.delete(x1, np.s_[i*size : (i+1)*size], 0)
+		x2_t = np.delete(x2, np.s_[i*size : (i+1)*size], 0)
+		y_t = np.delete(y, np.s_[i*size : (i+1)*size], 0)
+
+		t = (x1_t,x2_t,y_t)
+		v = (x1_v,x2_v,y_v)
+
+
+		split_list.append((t,v))
+
+	x1_v = x1[(k-1)*size :]
+	x2_v = x2[(k-1)*size :]
+	y_v = y[(k-1)*size :]
+
+	x1_t = np.delete(x1, np.s_[(k-1)*size :], 0)
+	x2_t = np.delete(x2, np.s_[(k-1)*size :], 0)
+	y_t = np.delete(y, np.s_[(k-1)*size :], 0)
+
+	t = (x1_t,x2_t,y_t)
+	v = (x1_v,x2_v,y_v)
+
+
+	split_list.append((t,v))
+
+	return split_list
+
 # find best hyper_param learning rate using k-fold, trying 5 different values
 def find_model(X_train, trial_val_y, X_test, test_y):
 	train_validate_list = k_fold(X_train, trial_val_y, 5)
@@ -89,7 +125,7 @@ def find_model(X_train, trial_val_y, X_test, test_y):
 			# print("train shape {} type {}" .format(train_X.shape, train_X.dtype))
 			# print("v shape {} type {}".format(validate_X.shape, validate_X.dtype))
 
-			model = LogRegression.Log_Regression(hyper_params[h], 0.005)
+			model = LogRegression.Log_Regression(hyper_params[h], 0.005, 10000)
 			model.fit(train_X, train_y)
 			y_h = model.predict(validate_X)
 
@@ -130,7 +166,7 @@ def main():
 	learning_rate = find_model(X_train, trial_val_y, X_test, test_y)
 	print("best learning rate found " + str(learning_rate))
 
-	log_r = LogRegression.Log_Regression(learning_rate, 0.01)
+	log_r = LogRegression.Log_Regression(learning_rate, 0.01, 10000)
 	log_r.fit(X_train, trial_val_y)
 	y_h = log_r.predict(X_test)
 	percent = evaluate_acc(test_y, y_h)
@@ -142,7 +178,7 @@ def q_test():
 	X_train, trial_val_y, X_test, test_y = read_data(3,1)
 	print(X_train.shape)
 	print(X_test.shape)
-	log_r = LogRegression.Log_Regression(0.1, 0.005)
+	log_r = LogRegression.Log_Regression(0.1, 0.005, 10000)
 	log_r.fit(X_train, trial_val_y)
 	y_h = log_r.predict(X_test)
 	error = evaluate_acc(test_y, y_h)

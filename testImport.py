@@ -149,17 +149,40 @@ def read_data(which, type_):
 # shuffles order of test cases and returns 'many' many of them
 # so that we can standardize how many test cases we have for each example
 def less_cases_together(x_t, y_t, many):
-	if x_t.shape[0] >= many:
+	if x_t.shape[0] <= many:
 		return (x_t, y_t)
 	x_shuf, y_shuf = shuffle(x_t, y_t)
 	return x_shuf[:many,:], y_shuf[:many,:]
 
 # same but for x split up for nb
 def less_cases_separate(x_con, x_cat, y_t, many):
-	if x_con.shape[0] >= many:
+	if x_con.shape[0] <= many:
 		return (x_con, x_cat, y_t)
 	x_con_shuf, x_cat_shuf, y_shuf = shuffle(x_con, x_cat, y_t)
 	return x_con_shuf[:many,:], x_cat_shuf[:many,:], y_shuf[:many,:]
 
-def less_features():
-	pass
+# randomly reduce the number of features in x NxD
+# for x_con and x_cat split up, should be done separately for each
+# although this needs to be done for both testing and training data!!!
+def less_features(x_train, x_test, many):
+	if x_train.shape[1] <= many:
+		return x_train, x_test
+	x_train, x_test = shuffle(x_train.T, x_test.T)
+	return x_train.T[:, :many], x_test.T[:,:many]
+
+def testing():
+	x, y, x_test, y_test = read_data(1,1)
+	print('initial shapes:')
+	print(x.shape)
+	print(y.shape)
+	print(x_test.shape)
+	print(y_test.shape)
+
+	a,b = less_cases_together(x,y,100)
+
+	print('shapes after:')
+	print(a.shape)
+	print(b.shape)
+
+if __name__ == "__main__":
+	testing()

@@ -2,9 +2,10 @@ import numpy as np
 
 class Log_Regression:
 
-    def __init__(self, lr, eps):
+    def __init__(self, lr, eps, m):
         self.learning_rate = lr
         self.stop_cond = eps
+        self.max_iterations = m
         self.w = -1
 
     # w Dx1
@@ -25,7 +26,7 @@ class Log_Regression:
         w = np.zeros((D, 1))
         g = np.inf
         its = 0
-        while np.linalg.norm(g) > eps and its < 20000:
+        while np.linalg.norm(g) > eps and its < self.max_iterations:
             g = self.gradient(X, y, w)
             # print(np.linalg.norm(g))
             w = w - lr * g
