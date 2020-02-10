@@ -1,110 +1,60 @@
 import numpy as np
 import pandas as pd
+from numpy import ma, math
 
-from testImport import read_data, less_cases_together
+from Importv2 import read_data
 import LogRegression
-
-def convert_y(y):
-	n,c = y.shape
-	print(y.shape)
-	result = []
-	for ar in y:
-		for j in range(len(ar)):
-			if ar[j]:
-				result.append(j)
-	print(len(result))
-	return np.array(result)
 
 # returns performance rate
 def evaluate_acc(y, y_hat):
 	success = 0
 	if np.shape(y) != np.shape(y_hat):
 		print("error: y != y_h")
-		print(y.shape)
-		print(y_hat.shape)
 		# raise SizeError('Size y != size yh')
-	if y.shape[1] != 1:
-		y = convert_y(y)
-		y_hat = convert_y(y_hat)
 	for i in range(np.shape(y)[0]):
 		if y[i] == y_hat[i]:
 			success += 1
 	return success/(np.shape(y)[0])
 
-# receoves X and Y appended to the end
-def k_fold(x, y, k):
+
+def k_fold(X, k):
+	# create a list of k pairs of train and validate sets
 	split_list = []
-	size = int(x.shape[0] / k)
+	size = math.floor(X.shape[0] / k)
+	# select blocks of size-sized instances to validate, and allocate
+	# the rest to train
+	for i in range(k - 2):
+		v_data = X[i * size:(i + 1) * size]
+		v_y, v_X = v_data[:, -1, np.newaxis], v_data[:, :-1]
+		validate = (v_X, v_y)
 
-	for i in range(k-1):
-		x_v = x[i*size : (i+1)*size]
-		y_v = y[i*size : (i+1)*size]
+		t_data = np.delete(X, np.s_[i * size: (i + 1) * size], 0)
+		t_y, t_X = t_data[:, -1, np.newaxis], t_data[:, :-1]
+		train = (t_X, t_y)
 
-		x_t = np.delete(x, np.s_[i*size : (i+1)*size], 0)
-		y_t = np.delete(y, np.s_[i*size : (i+1)*size], 0)
+		assert (v_y.shape[1] + v_X.shape[1] == t_y.shape[1] + t_X.shape[1] ==
+				v_data.shape[1] == t_data.shape[1])
+		split_list.append((train, validate))
 
-		t = (x_t,y_t)
-		v = (x_v,y_v)
+	# append the final block
+	v_data = X[(k - 1) * size:]
+	v_y, v_X = v_data[:, -1, np.newaxis], v_data[:, :-1]
+	assert (v_y.shape[1] + v_X.shape[1] == v_data.shape[1])
+	validate = (v_X, v_y)
 
+	t_data = X[:(k - 1) * size]
+	t_y, t_X = t_data[:, -1, np.newaxis], t_data[:, :-1]
+	train = (t_X, t_y)
 
-		split_list.append((t,v))
-
-	x_v = x[(k-1)*size :]
-	y_v = y[(k-1)*size :]
-
-	x_t = np.delete(x, np.s_[(k-1)*size :], 0)
-	y_t = np.delete(y, np.s_[(k-1)*size :], 0)
-
-	t = (x_t,y_t)
-	v = (x_v,y_v)
-
-
-	split_list.append((t,v))
-
-	return split_list
-
-# for naive bayes, having x_con and x_cat split up
-def k_fold_split(x1, x2, y, k):
-	split_list = []
-	size = int(x.shape[0] / k)
-
-	for i in range(k-1):
-		x1_v = x2[i*size : (i+1)*size]
-		x2_v = x2[i*size : (i+1)*size]
-		y_v = y[i*size : (i+1)*size]
-
-		x1_t = np.delete(x1, np.s_[i*size : (i+1)*size], 0)
-		x2_t = np.delete(x2, np.s_[i*size : (i+1)*size], 0)
-		y_t = np.delete(y, np.s_[i*size : (i+1)*size], 0)
-
-		t = (x1_t,x2_t,y_t)
-		v = (x1_v,x2_v,y_v)
-
-
-		split_list.append((t,v))
-
-	x1_v = x1[(k-1)*size :]
-	x2_v = x2[(k-1)*size :]
-	y_v = y[(k-1)*size :]
-
-	x1_t = np.delete(x1, np.s_[(k-1)*size :], 0)
-	x2_t = np.delete(x2, np.s_[(k-1)*size :], 0)
-	y_t = np.delete(y, np.s_[(k-1)*size :], 0)
-
-	t = (x1_t,x2_t,y_t)
-	v = (x1_v,x2_v,y_v)
-
-
-	split_list.append((t,v))
+	split_list.append((train, validate))
 
 	return split_list
 
 # find best hyper_param learning rate using k-fold, trying 5 different values
 def find_model(X_train, trial_val_y, X_test, test_y):
-	train_validate_list = k_fold(X_train, trial_val_y, 5)
-	print(len(train_validate_list))
+	train_validate_list = k_fold(np.append(X_train, trial_val_y, axis=1), 5)
 
-	hyper_params = [2, 1.5, 1, 0.5]
+	hyper_params = [2, 1.5, 1, 0.5, 0.1]
 
 	performance = []
 
@@ -124,7 +74,7 @@ def find_model(X_train, trial_val_y, X_test, test_y):
 			# print("train shape {} type {}" .format(train_X.shape, train_X.dtype))
 			# print("v shape {} type {}".format(validate_X.shape, validate_X.dtype))
 
-			model = LogRegression.Log_Regression(hyper_params[h], 0.005, 10000)
+			model = LogRegression.Log_Regression(hyper_params[h], 0.005)
 			model.fit(train_X, train_y)
 			y_h = model.predict(validate_X)
 
@@ -137,8 +87,6 @@ def find_model(X_train, trial_val_y, X_test, test_y):
 			perf += (percent)
 		perf /= len(train_validate_list)
 		performance.append(perf)
-		print(hyper_params)
-		print(performance)
 
 	best_perf = 0
 	best_index = 0
@@ -153,48 +101,38 @@ def find_model(X_train, trial_val_y, X_test, test_y):
 	return hyper_params[best_index]
 
 def main():
-	X_train, trial_val_y, X_test, test_y = read_data(4,1)
+	X_train, trial_val_y, X_test, test_y = read_data(1)
 	print("shapes!!! \n\n\n")
 	print(X_train.shape)
 	print(X_test.shape)
-	print(trial_val_y.shape)
-	print(test_y.shape)
 	# X = np.concatenate((train_validate_categorical, train_validate_continuous), axis=1)
 
 	# do k-fold split on the training data to get k folds of train and validate
 	learning_rate = find_model(X_train, trial_val_y, X_test, test_y)
 	print("best learning rate found " + str(learning_rate))
 
-	log_r = LogRegression.Log_Regression(learning_rate, 0.01, 10000)
+	log_r = LogRegression.Log_Regression(learning_rate, 0.005)
 	log_r.fit(X_train, trial_val_y)
 	y_h = log_r.predict(X_test)
 	percent = evaluate_acc(test_y, y_h)
 
-	print("Final success rate on testing data: " + str(percent))
+	print("Final success rate : " + str(percent))
 
 # quick testing to make sure stuff is working
 def q_test():
-	X_train, trial_val_y, X_test, test_y = read_data(2,1)
+	X_train, trial_val_y, X_test, test_y = read_data(1)
+	print("shapes!!! \n\n\n")
 	print(X_train.shape)
 	print(X_test.shape)
-
-
-	X_train, trial_val_y = less_cases_together(X_train, trial_val_y, 500)
-	log_r = LogRegression.Log_Regression(1, 0.005, 10000)
+	log_r = LogRegression.Log_Regression(1, 0.005)
 	log_r.fit(X_train, trial_val_y)
 	y_h = log_r.predict(X_test)
 	error = evaluate_acc(test_y, y_h)
-	print("Final successrate : " + str(error))
-
-	log_r_reg = LogRegression.Log_Regression(1, 0.005, 10000, 5)
-	log_r_reg.fit(X_train, trial_val_y)
-	y_h = log_r_reg.predict(X_test)
-	error = evaluate_acc(test_y, y_h)
-	print("Final successrate for regularized: " + str(error))
+	print("Final success: " + str(error) + " incorrect out of " + str(y_h.shape[0]))
 
 def test_2():
 	train_validate_continuous, train_validate_categorical, train_val_y, test_continuous, test_categorical, test_y = read_data(0)
 	print(train_validate_categorical)
 
 if __name__ == "__main__":
-	q_test()
+	test_2()
