@@ -69,7 +69,7 @@ def find_model(X_train, trial_val_y, X_test, test_y):
 	train_validate_list = k_fold(X_train, trial_val_y, 5)
 	print(len(train_validate_list))
 
-	hyper_params = [2, 1.5, 1, 0.5, 0.1]
+	hyper_params = [2, 1.5, 1, 0.5]
 
 	performance = []
 
@@ -89,7 +89,7 @@ def find_model(X_train, trial_val_y, X_test, test_y):
 			# print("train shape {} type {}" .format(train_X.shape, train_X.dtype))
 			# print("v shape {} type {}".format(validate_X.shape, validate_X.dtype))
 
-			model = LogRegression.Log_Regression(hyper_params[h], 0.01)
+			model = LogRegression.Log_Regression(hyper_params[h], 0.005)
 			model.fit(train_X, train_y)
 			y_h = model.predict(validate_X)
 
@@ -118,7 +118,7 @@ def find_model(X_train, trial_val_y, X_test, test_y):
 	return hyper_params[best_index]
 
 def main():
-	X_train, trial_val_y, X_test, test_y = read_data(2,1)
+	X_train, trial_val_y, X_test, test_y = read_data(4,1)
 	print("shapes!!! \n\n\n")
 	print(X_train.shape)
 	print(X_test.shape)

@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import constant
-from sklearn.preprocessing import normalize
+from sklearn.utils import shuffle
 
 np.set_printoptions(threshold=np.inf)
 pd.set_option('display.max_columns', 500)
@@ -112,7 +112,6 @@ def read_data(which, type_):
 			return train_x_cat, train_y, test_x_cat, test_y
 		return train_x_con, train_x_cat, train_y, test_x_con, test_x_cat, test_y
 
-
 	elif which == constant.CREDIT:
 
 		trainfile = 'data/crx.data'
@@ -145,3 +144,22 @@ def read_data(which, type_):
 		if type_:
 			return np.append(train_x_con, train_x_cat, axis=1), train_y, np.append(test_x_con, test_x_cat, axis=1), test_y
 		return train_x_con, train_x_cat, train_y, test_x_con, test_x_cat, test_y
+
+# for log_reg
+# shuffles order of test cases and returns 'many' many of them
+# so that we can standardize how many test cases we have for each example
+def less_cases_together(x_t, y_t, many):
+	if x_t.shape[0] >= many:
+		return (x_t, y_t)
+	x_shuf, y_shuf = shuffle(x_t, y_t)
+	return x_shuf[:many,:], y_shuf[:many,:]
+
+# same but for x split up for nb
+def less_cases_separate(x_con, x_cat, y_t, many):
+	if x_con.shape[0] >= many:
+		return (x_con, x_cat, y_t)
+	x_con_shuf, x_cat_shuf, y_shuf = shuffle(x_con, x_cat, y_t)
+	return x_con_shuf[:many,:], x_cat_shuf[:many,:], y_shuf[:many,:]
+
+def less_features():
+	pass
