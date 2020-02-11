@@ -118,7 +118,7 @@ def posterior(prior, w, x):
     N = x.shape[0]
     s = 0
     for d in range(D):
-        s = s + w[d] * x[d]
+        s += w[d] * x[d]
     return s
 
 def predict(posterior):
