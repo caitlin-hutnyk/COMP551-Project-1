@@ -21,6 +21,19 @@ def computePrior(Y, dataset):
         # print("instances: {}, class 0 prior: {}, class 1 prior: {}" .format(Y.shape[0], c0, c1))
         return c0, c1
 
+    # compute prior for multinomial dataset
+    else:
+        N = Y.shape[0]
+        C = Y.shape[1]
+        priors = np.zeros(C)
+        for c in range(C):
+            count = 0
+            for n in range(N):
+                if Y[n][c] == 1:
+                    count += 1
+            priors[c] = count/N
+        return priors
+
 def computeLikelihoodBernoulli(X, Y):
     # X is a NxD design matrix
     # Y is a Nx1 label vector
@@ -56,7 +69,7 @@ def computeLikelihoodBernoulli(X, Y):
 
 def computeGaussian(X, Y):
     N, D = X.shape
-    mean, stdev = np.zeros((D, 2)), np.zeros((D, 2))
+    mean, stdev = np.zeros((D, 2))
     w = np.zeros((D, 2))
 
     for i in range(2):
@@ -125,6 +138,3 @@ def predict(posterior):
 
 class NaiveBayes:
     pass
-
-
-
