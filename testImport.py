@@ -84,7 +84,7 @@ def read_data(which, type_):
 
 		if type_:
 			train_x = np.append(train_x_con, train_x_cat, axis=1)
-			train_x = np.append(np.ones((test_x.shape[0], 1)), test_x, axis=1)
+			train_x = np.append(np.ones((train_x.shape[0], 1)), train_x, axis=1)
 			test_x = np.append(test_x_con, test_x_cat, axis=1)
 			test_x = np.append(np.ones((test_x.shape[0], 1)), test_x, axis=1)
 			return train_x, train_y, test_x, test_y

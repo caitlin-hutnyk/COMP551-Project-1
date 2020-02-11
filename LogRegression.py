@@ -18,9 +18,9 @@ class Log_Regression:
 
     def compute_avg_its(self):
     	avg = 0
-    	for i in its_list:
+    	for i in self.its_list:
     		avg += i 
-    	avg /= len(its_list)
+    	avg /= len(self.its_list)
     	return avg
 
     # w Dx1
