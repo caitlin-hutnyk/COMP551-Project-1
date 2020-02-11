@@ -1,7 +1,7 @@
 import numpy as np
 import constant
 
-
+# returns priors Cx1
 def computePrior(Y, dataset):
     # Y labels, of dimension Nx1
     # dataset 1: ionosphere - bernoulli
@@ -25,16 +25,20 @@ def computePrior(Y, dataset):
 
 def computeLikelihoodBernoulli(X, Y, priors):
     # X is a NxD design matrix
-    # Y is a Nx1 label vector for datasets 1, 2 and 3
-    # Y is a NxC matrix for datasets 4
+    # Y is a Nx2 label vector for datasets 1, 2 and 4
+    # Y is a NxC matrix for datasets 3
 
     N, D = X.shape
     C = Y.shape[1]
     w = np.zeros((D, C))
+    '''
+    bottom = priors[c] * N
+    top = 
+    '''
 
-    for i in range(priors.shape[0]):
+    for i in range(C):
         # get all indexes where c = 0, or c = 1
-        c_index = np.nonzero(Y[i])[0]
+        c_index = np.nonzero(Y.T[i])[0] 
 
         for d in range(D):
             # instances satisfying the condition xd = 1
@@ -56,7 +60,7 @@ def computeGaussian(X, Y):
 
     for i in range(C):
         # get all indexes where c = 0, or c = 1
-        c_index = np.nonzero(Y[i])[0]
+        c_index = np.nonzero(Y.T[i])[0]
 
         mean[:, i] = np.mean(X[c_index, :], 0)
         stdev[:, i] = np.std(X[c_index, :], 0)
@@ -149,6 +153,3 @@ def convertY(t_y, v_y):
             v_y[n][0] = 1
 
     return t_y, v_y
-
-class NaiveBayes:
-    pass
