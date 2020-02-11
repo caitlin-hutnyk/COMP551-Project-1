@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import constant
 from sklearn.utils import shuffle
+from sklearn.preprocessing import normalize
 
 np.set_printoptions(threshold=np.inf)
 pd.set_option('display.max_columns', 500)
@@ -32,10 +33,12 @@ def read_data(which, type_):
 		# split original matrix into train and test, and x and y
 		train_y = np.array(data_new_arr[:split,-2:-1])
 		train_x_con = np.array(data_new_arr[:split, :-2])
+		train_x_con = normalize(train_x_con)
 		train_x_cat = None
 
 		test_y = np.array(data_new_arr[split:,-2:-1])
 		test_x_con = np.array(data_new_arr[split:, :-2])
+		test_x_con = normalize(test_x_con)
 		test_x_cat = None
 
 		if type_:
@@ -67,10 +70,12 @@ def read_data(which, type_):
 		# split original matrix into x and y
 		train_y = np.array(data_new_arr[:split,-2:-1])
 		train_x_con = np.array(data_new_arr[:split, :6])
+		train_x_con = normalize(train_x_con)
 		train_x_cat = np.array(data_new_arr[:split, 6:-2])
 
 		test_y = np.array(data_new_arr[split:,-2:-1])
 		test_x_con = np.array(data_new_arr[split:, :6])
+		test_x_con = normalize(test_x_con)
 		test_x_cat = np.array(data_new_arr[split:, 6:-2])
 
 		if type_:
@@ -135,10 +140,12 @@ def read_data(which, type_):
 		# split original matrix into x and y
 		train_y = np.array(data_new_arr[:split, -2:-1])
 		train_x_con = np.array(data_new_arr[:split, :6])
+		train_x_con = normalize(train_x_con)
 		train_x_cat = np.array(data_new_arr[:split, 6:-2])
 
 		test_y = np.array(data_new_arr[split:, -2:-1])
 		test_x_con = np.array(data_new_arr[split:, :6])
+		test_x_con = normalize(test_x_con)
 		test_x_cat = np.array(data_new_arr[split:, 6:-2])
 
 		if type_:
