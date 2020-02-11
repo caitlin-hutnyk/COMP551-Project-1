@@ -22,7 +22,7 @@ class Log_Regression:
     		avg += i 
     	avg /= len(its_list)
     	return avg
-    
+
     # w Dx1
     # x NxD
     # gives decision boundary 0.5
@@ -54,7 +54,7 @@ class Log_Regression:
             w = w - lr * g
             its = its + 1
         print("Terminating gradient descent at iterations: {}".format(its))
-        self.avg_its.append(its)
+        self.its_list.append(its)
         return w
 
     # for multiclass classification
