@@ -10,7 +10,6 @@ def computePrior(Y, dataset):
     # dataset 4: congressional - bernoulli
     N = Y.shape[0]
     C = Y.shape[1]
-
     priors = np.zeros(C)
 
     for c in range(C):
@@ -19,7 +18,6 @@ def computePrior(Y, dataset):
             if Y[n][c] == 1:
                 count += 1
         priors[c] = count / N
-
     return priors
 
 
@@ -31,10 +29,6 @@ def computeLikelihoodBernoulli(X, Y, priors):
     N, D = X.shape
     C = Y.shape[1]
     w = np.zeros((D, C))
-    '''
-    bottom = priors[c] * N
-    top = 
-    '''
 
     for i in range(C):
         # get all indexes where c = 0, or c = 1
@@ -108,6 +102,10 @@ def posterior(priors, w, w_gauss, x_cat, x_con):
         N = post_cat.shape[0]
         post = np.zeros((N, C))
         if post_con is not None:
+            D_cat = post_cat.shape[1]
+            D_con = post_con.shape[1]
+            cat_ratio = D_cat / (D_cat + D_con)
+            con_ratio = D_con / (D_cat + D_con)
             for c in range(C):
                 for n in range(N):
                     post[n][c] = post_cat[n][c] * post_con[n][c]

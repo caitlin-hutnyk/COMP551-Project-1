@@ -24,7 +24,7 @@ def evaluate_acc(y, y_hat):
 
 
 def main():
-    dataset = constant.IONOSPHERE
+    dataset = constant.CREDIT
     X_con, X_cat, Y, test_con, test_cat, test_y = read_data(dataset, 0)
 
     train_validation_sets = k_fold_split(X_cat, X_con, Y, 5)
