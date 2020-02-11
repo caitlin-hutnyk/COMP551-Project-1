@@ -14,8 +14,6 @@ def run_k_folds(model, fold_list):
 		validate_X, validate_y = validate
 
 		# add first col of ones
-		train_X = np.append(np.ones((train_X.shape[0], 1)), train_X, axis=1)
-		validate_X = np.append(np.ones((validate_X.shape[0], 1)), validate_X, axis=1)
 
 		# print("train shape {} type {}" .format(train_X.shape, train_X.dtype))
 		# print("v shape {} type {}".format(validate_X.shape, validate_X.dtype))
@@ -65,12 +63,12 @@ def test_model_log(dataset, lr_list, eps_list, max_list, n_sizes, d_sizes, folds
 						for r in reg_list:
 							model = LogRegression.Log_Regression(lr, eps, m, r)
 							k_perf = run_k_folds(model, fold_list)
-							real_perf = evaluate_acc(y_t, model.predict(np.append(np.ones((x_t.shape[0], 1)), x_t, axis=1)))
+							real_perf = evaluate_acc(y_t, model.predict(x_t))
 							performances.append((size, lr, eps, m, r, k_perf, real_perf))
 					else: 
 						model = LogRegression.Log_Regression(lr, eps, m)
 						k_perf = run_k_folds(model, fold_list)
-						real_perf = evaluate_acc(y_t, model.predict(np.append(np.ones((x_t.shape[0], 1)), x_t, axis=1)))
+						real_perf = evaluate_acc(y_t, model.predict(x_t))
 						performances.append((size, lr, eps, m, k_perf, real_perf))
 		n_performances.append(performances)
 					
@@ -91,12 +89,12 @@ def test_model_log(dataset, lr_list, eps_list, max_list, n_sizes, d_sizes, folds
 						for r in reg_list:
 							model = LogRegression.Log_Regression(lr, eps, m, r)
 							k_perf = run_k_folds(model, fold_list)
-							real_perf = evaluate_acc(y_t, model.predict(np.append(np.ones((x_t_s.shape[0], 1)), x_t_s, axis=1)))
+							real_perf = evaluate_acc(y_t, model.predict(x_t_s))
 							performances.append((size, lr, eps, m, r, k_perf, real_perf))
 					else: 
 						model = LogRegression.Log_Regression(lr, eps, m)
 						k_perf = run_k_folds(model, fold_list)
-						real_perf = evaluate_acc(y_t, model.predict(np.append(np.ones((x_t_s.shape[0], 1)), x_t_s, axis=1)))
+						real_perf = evaluate_acc(y_t, model.predict(x_t_s))
 						performances.append((size, lr, eps, m, k_perf, real_perf))
 		d_performances.append(performances)
 
@@ -248,6 +246,15 @@ def k_fold_split(x1, x2, y, k):
     split_list.append((t,v))
 
     return split_list
+
+# for logistic regression
+def test_lr_vs_its(dataset, lr_list):
+    x, y, x_t, y_t = testImport.read_data(dataset, 1)
+    folds = k_fold(x,y,5)
+
+
+def test_lr_vs_perf(dataset, lr_list):
+    x, y, x_t, y_t = testImport.read_data(dataset, 1)
 
 def test():
 	result = test_model_log(1, [1, 0.5, 1], [0.005], [20000], [2000, 500, 100], [100], 5)

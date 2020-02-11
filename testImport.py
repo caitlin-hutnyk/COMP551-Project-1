@@ -43,7 +43,9 @@ def read_data(which, type_):
 		test_x_cat = None
 
 		if type_:
-			return train_x_con, train_y, test_x_con, test_y
+			train_x = np.append(np.ones((train_x_con[0], 1)), train_x_con, axis=1)
+			text_x = np.append(np.ones((test_x_con[0], 1)), test_x_con, axis=1)
+			return train_x, train_y, test_x, test_y
 		return train_x_con, train_x_cat, train_y, test_x_con, test_x_cat, test_y
 
 	elif which == constant.CENSUS:
@@ -81,7 +83,11 @@ def read_data(which, type_):
 		test_x_cat = np.array(data_new_arr[split:, 6:-2])
 
 		if type_:
-			return np.append(train_x_con, train_x_cat, axis=1), train_y, np.append(test_x_con, test_x_cat, axis=1), test_y
+			train_x = np.append(train_x_con, train_x_cat, axis=1)
+			train_x = np.append(np.ones((train_x[0], 1)), train_x, axis=1)
+			test_x = np.append(test_x_con, test_x_cat, axis=1)
+			test_x = np.append(np.ones((train_x[0], 1)), train_x, axis=1)
+			return train_x, train_y, test_x, test_y
 		return train_x_con, train_x_cat, train_y, test_x_con, test_x_cat, test_y
 
 	elif which == constant.POKER:
@@ -117,7 +123,9 @@ def read_data(which, type_):
 		test_x_cat = np.array(data_new_arr[split:,:-10])
 
 		if type_:
-			return train_x_cat, train_y, test_x_cat, test_y
+			train_x = np.append(np.ones((train_x_cat[0], 1)), train_x_cat, axis=1)
+			text_x = np.append(np.ones((test_x_cat[0], 1)), test_x_cat, axis=1)
+			return train_x, train_y, test_x, test_y
 		return train_x_con, train_x_cat, train_y, test_x_con, test_x_cat, test_y
 
 	elif which == constant.CREDIT:
@@ -153,5 +161,9 @@ def read_data(which, type_):
 		test_x_cat = np.array(data_new_arr[split:, 6:-2])
 
 		if type_:
-			return np.append(train_x_con, train_x_cat, axis=1), train_y, np.append(test_x_con, test_x_cat, axis=1), test_y
+			train_x = np.append(train_x_con, train_x_cat, axis=1)
+			train_x = np.append(np.ones((train_x[0], 1)), train_x, axis=1)
+			test_x = np.append(test_x_con, test_x_cat, axis=1)
+			test_x = np.append(np.ones((train_x[0], 1)), train_x, axis=1)
+			return train_x, train_y, test_x, test_y
 		return train_x_con, train_x_cat, train_y, test_x_con, test_x_cat, test_y
