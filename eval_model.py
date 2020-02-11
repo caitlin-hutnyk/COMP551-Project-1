@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from testImport import read_data, less_cases_together
+from testImport import read_data
+from test_models import less_cases_together
 import LogRegression
 
 def convert_y(y):
