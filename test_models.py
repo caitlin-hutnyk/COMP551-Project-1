@@ -263,15 +263,52 @@ def test_lr_vs_its(dataset, lr_list):
 def lr_vs_its(lr_list):
 	for i in range(1,5):
 		avg_its = test_lr_vs_its(i, lr_list)
-		print(lr_list)
-		print(avg_its)
 		plt.plot(lr_list, avg_its)
 		plt.xlabel('learning rate')
 		plt.ylabel('average iterations')
-		plt.savefig('log_r_testing/lr_vs_its_' + str(i))
+	plt.legend(['ionosphere', 'census', 'poker hands', 'credit rating'])
+	plt.savefig('log_r_testing/lr_vs_its')
 
 def test_lr_vs_perf(dataset, lr_list):
 	x, y, x_t, y_t = testImport.read_data(dataset, 1)
+	folds = k_fold(x,y,5)
+	result = []
+	for lr in lr_list:
+		model = LogRegression.Log_Regression(lr, 0.005, 25000)
+		perf = run_k_folds(model, folds)
+		result.append(perf)
+	return result
+
+def lr_vs_perf(lr_list):
+	for i in range(1,5):
+		performances = test_lr_vs_perf(i, lr_list)
+		plt.plot(lr_list, performances)
+		plt.xlabel('learning rate')
+		plt.ylabel('performance')
+	plt.legend(['ionosphere', 'census', 'poker hands', 'credit rating'])
+	plt.savefig('log_r_testing/lr_vs_perf')
+
+
+def test_n_vs_perf(dataset, n_list):
+	x, y, x_t, y_t = testImport.read_data(dataset, 1)
+	perf_list = []
+	for n in n_list:
+		xs, ys = less_cases_together(x, y, n)
+		model = LogRegression.Log_Regression(1,0.005,10000)
+		model.fit(xs, ys)
+		perf = evaluate_acc(y_t, model.predict(x_t))
+		perf_list.append(perf)
+	return perf_list
+# test dataset size vs performance on test data
+# for logistic regression
+def n_vs_perf(n_list):
+	for i in range(1,5):
+		perf_list = test_n_vs_perf(i, n_list)
+		plt.plot(n_list, perf_list)
+		plt.xlabel('dataset size')
+		plt.ylabel('performance')
+	plt.legend(['ionosphere', 'census', 'poker hands', 'credit rating'])
+	plt.savefig('log_r_testing/n_vs_perf')
 
 def test():
 	lr_list = [2,1.75,1.5,1.25,1,0.75,0.5,0.25,0.1]
@@ -284,4 +321,9 @@ def test():
 	plt.show()
 
 if __name__ == "__main__":
+	plt.clf()
+	lr_vs_perf([2,1.75,1.5,1.25,1,0.75,0.5,0.25,0.1])
+	plt.clf()
 	lr_vs_its([2,1.75,1.5,1.25,1,0.75,0.5,0.25,0.1])
+	plt.clf()
+	n_vs_perf([50000, 25000, 10000, 5000, 1000, 500, 200, 100])
