@@ -20,7 +20,7 @@ def evaluate_acc(y, y_hat):
 def main():
     dataset = constant.CENSUS
     X_con, X_cat, Y, test_con, test_cat, test_y = read_data(dataset, 0)
-    normalise(X_con)
+    # normalise(X_con)
 
     train_validation_sets = k_fold_split(X_cat, X_con, Y, 5)
 
@@ -29,13 +29,6 @@ def main():
         train, validate = set
         t_cat, t_con, t_y = train
         v_cat, v_con, v_y = validate
-
-        # if v_cat is None and v_con is not None:
-        #     v_x = v_con
-        # elif v_con is None and v_cat is None:
-        #     v_x = v_cat
-        # else:
-        #     v_x = np.append(v_cat, v_con, axis=1)
 
         # calculate prior and likelihoods with training data
         priors = nb.computePrior(t_y, dataset)
@@ -60,14 +53,14 @@ def main():
         rate = evaluate_acc(v_y, y_hat)
         print("success rate: " + str(rate))
 
-def normalise(X_con):
-    column_max_vals = np.max(X_con, axis=0)
-    # for each continuous column and each instance,
-    for col in range(X_con.shape[1]):
-        for n in range(X_con.shape[0]):
-            # divide by the max to normalise, and ensure we don't divide by zero
-            if column_max_vals[col] > 0.00001:
-                X_con[n][col] /= column_max_vals[col]
+# def normalise(X_con):
+#     column_max_vals = np.max(X_con, axis=0)
+#     # for each continuous column and each instance,
+#     for col in range(X_con.shape[1]):
+#         for n in range(X_con.shape[0]):
+#             # divide by the max to normalise, and ensure we don't divide by zero
+#             if column_max_vals[col] > 0.00001:
+#                 X_con[n][col] /= column_max_vals[col]
 
 if __name__ == "__main__":
     main()

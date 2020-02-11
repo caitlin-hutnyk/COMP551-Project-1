@@ -51,18 +51,6 @@ def computeLikelihoodBernoulli(X, Y):
                 if X[c][d] == 1:
                     b_condition += 1
             w[d][i] = b_condition / total
-            # print("feature d: {}, satis b condition: {} of total: {}".format(d, b_condition, total))
-            # print("bernoulli likelihood for feature {} is {} ".format(d, w[d][i]))
-
-    # normalise
-    # for d in range(D):
-    #     maxval = max(w[d][0], w[d][1])
-    #     if maxval > 0.001:
-    #         w[d][0] = w[d][0]/maxval
-    #         w[d][1] = w[d][1]/maxval
-
-    # for i in range(5):
-    #     print("The likelihoods of feature {} having class 0: {} class 1: {}".format(i, w[i][0], w[i][1]))
 
     return w
 
@@ -84,26 +72,6 @@ def computeGaussian(X, Y):
         stdev[:, i] = np.std(X[c_index, :], 0)
 
     return mean, stdev
-
-    # print("the mean and stdev of for each class-feature pair: ")
-    # # so we don't go out of bounds when printing...
-    # m = X.shape[0]
-    # if (m > 6):
-    #     m = 6
-    # for i in range(m):
-    #   print("class 0, feature {}, mean: {}, stdev: {}".format(i, mean[i][0], stdev[i][0]))
-    #    print("class 1, feature {}, mean: {}, stdev: {}".format(i, mean[i][1], stdev[i][1]))
-
-    # calculate log likelihood, with var = 1
-
-
-    # normalise
-    # for d in range(D):
-    #     m = max(w[d][0], w[d][1])
-    #     if m > 0.001:
-    #         w[d][0] = w[d][0]/m
-    #         w[d][1] = w[d][1]/m
-    return w
 
 def posterior(priors, w, w_gauss, x_cat, x_con):
     post_cat, post_con = None, None
@@ -134,7 +102,6 @@ def posterior(priors, w, w_gauss, x_cat, x_con):
                 likelihood = 0
                 for d in range(D):
                     likelihood += 0.5 * ((row[d] - mu[d][i]) ** 2)
-                print(likelihood)
                 post_con[idx][i] = np.exp(np.log(priors[i]) + (-1 * likelihood))
 
     # return valid posterior probabilities
