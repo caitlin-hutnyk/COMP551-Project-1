@@ -8,53 +8,50 @@ def computePrior(Y, dataset):
     # dataset 2: census - bernoulli
     # dataset 3: poker - multiclass, 10 classes
     # dataset 4: congressional - bernoulli
+    N = Y.shape[0]
+    C = Y.shape[1]
 
-    # calculate a bernoulli prior
-    if dataset != constant.POKER:
-        c1 = 0
-        for y in Y:
-            if y == 1:
-                c1 += 1
-        c0 = Y.shape[0] - c1
-        c0, c1 = c0/Y.shape[0], c1/Y.shape[0]
-        # print("in computePrior for dataset {}".format(dataset))
-        # print("instances: {}, class 0 prior: {}, class 1 prior: {}" .format(Y.shape[0], c0, c1))
-        return c0, c1
+    priors = np.zeros(C)
 
-    # compute prior for multinomial dataset
-    else:
-        N = Y.shape[0]
-        C = Y.shape[1]
-        priors = np.zeros(C)
-        for c in range(C):
-            count = 0
-            for n in range(N):
-                if Y[n][c] == 1:
-                    count += 1
-            priors[c] = count/N
-        return priors
+    for c in range(C):
+        count = 0
+        for n in range(N):
+            if Y[n][c] == 1:
+                count += 1
+        priors[c] = count / N
 
-def computeLikelihoodBernoulli(X, Y):
+        # if priors[c] == 0:
+        #     priors[c] = 0.00000000001
+
+    return priors
+
+
+def computeLikelihoodBernoulli(X, Y, priors):
     # X is a NxD design matrix
-    # Y is a Nx1 label vector
+    # Y is a Nx1 label vector for datasets 1, 2 and 3
+    # Y is a NxC matrix for datasets 4
+
     N, D = X.shape
-    w = np.zeros((D, 2))
-    total_y0, total_y1 = 0, 0
+    C = Y.shape[1]
+    w = np.zeros((D, C))
 
-    # compute denominator
-    for y in Y:
-        if y == 1:
-            total_y1 += 1
-    total_y0 = N - total_y1
+    # total_y0, total_y1 = 0, 0
+    #
+    # # compute denominator
+    # for y in Y:
+    #     if y == 1:
+    #         total_y1 += 1
+    # total_y0 = N - total_y1
 
-    for i in range(2):
+    for i in range(len(priors)):
         # get all indexes where c = 0, or c = 1
-        if i == 0:
-            c_index = np.where(Y == 0)[0]
-            total = total_y0
-        else:
-            c_index = np.nonzero(Y)[0]
-            total = total_y1
+        c_index = np.nonzero(Y[i])[0]
+        # if i == 0:
+        #     c_index = np.where(Y == 0)[0]
+        #     #total = total_y0
+        # else:
+        #     c_index = np.nonzero(Y)[0]
+        #     # total = total_y1
 
         for d in range(D):
             # instances satisfying the condition xd = 1
@@ -63,21 +60,27 @@ def computeLikelihoodBernoulli(X, Y):
             for c in c_index:
                 if X[c][d] == 1:
                     b_condition += 1
-            w[d][i] = b_condition / total
+            w[d][i] = b_condition / (priors[i] * N)
 
     return w
 
+
 def computeGaussian(X, Y):
     N, D = X.shape
-    mean, stdev = np.zeros((D, 2))
+    C = Y.shape[1]
+    mean, stdev = np.zeros((D, C)), np.zeros((D, C))
     w = np.zeros((D, 2))
 
-    for i in range(2):
+    for i in range(C):
         # get all indexes where c = 0, or c = 1
-        if i == 0:
-            c_index = np.where(Y == 0)[0]
-        else:
-            c_index = np.nonzero(Y)[0]
+        c_index = np.nonzero(Y[i])[0]
+
+        # for i in range(2):
+        #     # get all indexes where c = 0, or c = 1
+        #     if i == 0:
+        #     c_index = np.where(Y == 0)[0]
+        # else:
+        #     c_index = np.nonzero(Y)[0]
 
         # calculate the mean and stdev of per feature for all instances, depending on
         # their class placement
@@ -86,16 +89,19 @@ def computeGaussian(X, Y):
 
     return mean, stdev
 
+
 def posterior(priors, w, w_gauss, x_cat, x_con):
     post_cat, post_con = None, None
+    C = priors.shape[0]
+    post = None
 
     # calculate bernoulli posterior probabilities
     if w is not None:
         N = x_cat.shape[0]
         D = x_cat.shape[1]
-        post_cat = np.zeros((N, 2))
+        post_cat = np.zeros((N, C))
 
-        for i in range(len(priors)):
+        for i in range(C):
             for idx, row in enumerate(x_cat):
                 for d in range(D):
                     post_cat[idx][i] += w[d][i] * row[d]
@@ -108,19 +114,26 @@ def posterior(priors, w, w_gauss, x_cat, x_con):
         mu, stdv = w_gauss
         N = x_con.shape[0]
         D = x_con.shape[1]
-        post_con = np.zeros((N, 2))
+        post_con = np.zeros((N, C))
 
-        for i in range(len(priors)):
-            for idx, row in enumerate(x_con):
+        for i in range(C):
+            for n in range(N):
                 likelihood = 0
                 for d in range(D):
-                    likelihood += 0.5 * ((row[d] - mu[d][i]) ** 2)
-                post_con[idx][i] = np.exp(np.log(priors[i]) + (-1 * likelihood))
+                    likelihood += 0.5 * ((x_con[n][d] - mu[d][i]) ** 2)
+                post_con[n][i] = np.exp(np.log1p(priors[i]) + (-1 * likelihood))
+            max_post_val = np.max(post_con[:, i])
+            post_con[:, i] /= max_post_val
 
     # return valid posterior probabilities
     if post_cat is not None:
+        N = post_cat.shape[0]
+        C = post_cat.shape[1]
+        post = np.zeros((N, C))
         if post_con is not None:
-            post = np.append(post_cat, post_con, axis=1)
+            for c in range(C):
+                for n in range(N):
+                    post[n][i] = post_cat[n][i] * post_con[n][i]
         else:
             post = post_cat
     else:
@@ -128,13 +141,48 @@ def posterior(priors, w, w_gauss, x_cat, x_con):
 
     return post
 
+
 def predict(posterior):
     # posterior is a N x 2 matrix of posterior probability of each class-feature pair
-    y_hat = np.ones((posterior.shape[0], 1))
-    for i in range(posterior.shape[0]):
-        if posterior[i][0] > posterior[i][1]:
-            y_hat[i] = 0
+    # and N x C for poker hands
+    N = posterior.shape[0]
+    C = posterior.shape[1]
+    print("IN PREDICT")
+    print(posterior.shape)
+    y_hat = np.zeros((N, C))
+
+    for n in range(N):
+        class_max = -np.inf
+        class_index = -1
+        for c in range(C):
+            if posterior[n][c] > class_max:
+                class_max, class_index = posterior[n][c], c
+        print("class max: {} from class {}".format(class_max, c))
+        print("CLASS 0 {} ".format(posterior[n][0]))
+        y_hat[n][class_index] = 1
+
+    print(y_hat[:20,:])
+
+
+
     return y_hat
+
+
+def convertY(t_y, v_y):
+    N_ty = t_y.shape[0]
+    N_vy = v_y.shape[0]
+    t_y = np.append(np.zeros((N_ty, 1)), t_y, axis=1)
+    v_y = np.append(np.zeros((N_vy, 1)), v_y, axis=1)
+
+    for n in range(N_ty):
+        if t_y[n][1] == 0:
+            t_y[n][0] = 1
+
+    for n in range(N_vy):
+        if v_y[n][1] == 0:
+            v_y[n][0] = 1
+
+    return t_y, v_y
 
 class NaiveBayes:
     pass
