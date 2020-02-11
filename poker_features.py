@@ -1,6 +1,6 @@
 import numpy as np 
 
-# x is 10xN (n number of training examples)
+# x is Nx10 (n number of training examples)
 # convert card data to new base data
 # with 0-9 being cards...
 # 10 is flush

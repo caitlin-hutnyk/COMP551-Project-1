@@ -27,12 +27,8 @@ sns.set(style="ticks", color_codes=True)
 
 data1_new.hist(bins=50, figsize=(20,15))
 sns.catplot(x=34, kind="count", palette="ch:.25", data=data1_new)
-# the correlations are different between the pair of features, some shows linear correlation some just
-# show random distributed data points
-plt.scatter(data1_new [16], data1_new[14]) #we can see feature 14 and 16 has linear correlation
-plt.scatter(data1_new [25], data1_new[6]) # for feature 6 and 25 it's hard to find correlation, but we can see most of data points of feature fall under greater values
-plt.scatter(data1_new [34], data1_new[6])
-plt.scatter(data1_new [34], data1_new[16]) # by looking at the distribution of features under different class, we can see their pattern are quite different, therefore we can say this feature has strong predicting ability
+plt.scatter(data1_new[2], data1_new[3], color='r')
+
 plt.show()
 data1_new[34].value_counts()
 
@@ -54,13 +50,11 @@ print(data2_new.describe())
 sns.set(style="ticks", color_codes=True)
 data2_new.hist(bins=50, figsize=(20,15))
 sns.catplot(x="salary", kind="count", palette="ch:.25", data=data2_new)
-plt.scatter(data2_new['salary'], data2_new['age'], color='r') # age range of salary class <=50k is wider, most of 20
-sns.scatterplot(x="age", y="fnlwgt", hue="sex", data=data2_new)
+plt.scatter(data2_new.age, data2_new.education-num color='r')
 plt.show()
 data2_new["salary"].value_counts()
 
 sns.catplot(x="sex", y="education-num", kind="swarm", data=data2_new)
-
 
 # dataset3
 trainfile3 = 'data/poker-hand-training-true.data'
@@ -94,8 +88,7 @@ print(data4_new.describe())
 
 sns.set(style="ticks", color_codes=True)
 data4_new.hist(bins=50, figsize=(20,15))
-sns.scatterplot(x=1, y=2, data=data4_new)
-sns.scatterplot(x=15, y=7, data=data4_new)
+# sns.catplot(x="CLASS", kind="count", palette="ch:.25", data=data4_new)
 plt.show()
 data4_new[16].counts()
 
