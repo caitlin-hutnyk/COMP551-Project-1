@@ -32,11 +32,11 @@ def read_data(which, type_):
 		# split original matrix into train and test, and x and y
 		train_y = np.array(data_new_arr[:split,-2:-1])
 		train_x_con = np.array(data_new_arr[:split, :-2])
-		train_x_cat = -1
+		train_x_cat = None
 
 		test_y = np.array(data_new_arr[split:,-2:-1])
 		test_x_con = np.array(data_new_arr[split:, :-2])
-		test_x_cat = -1
+		test_x_cat = None
 
 		if type_:
 			return train_x_con, train_y, test_x_con, test_y
@@ -101,11 +101,11 @@ def read_data(which, type_):
 
 		# split original matrix into x and y
 		train_y = np.array(data_new_arr[:split, -10:])
-		train_x_con = -1
+		train_x_con = None
 		train_x_cat = np.array(data_new_arr[:split,:-10])
 
 		test_y = np.array(data_new_arr[split:, -10:])
-		test_x_con = -1
+		test_x_con = None
 		test_x_cat = np.array(data_new_arr[split:,:-10])
 
 		if type_:

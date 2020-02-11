@@ -66,29 +66,41 @@ def k_fold(x, y, k):
 # for naive bayes, having x_con and x_cat split up
 def k_fold_split(x1, x2, y, k):
 	split_list = []
-	size = int(x.shape[0] / k)
+	# initialise to None in case we have no con or cat features in a dataset
+	x1_v, x1_t, x2_v, x2_t = None, None, None, None
+
+	if x1 is None:
+		size = int(x2.shape[0] / k)
+	else:
+		size = int(x1.shape[0] / k)
 
 	for i in range(k-1):
-		x1_v = x2[i*size : (i+1)*size]
-		x2_v = x2[i*size : (i+1)*size]
-		y_v = y[i*size : (i+1)*size]
+		if x1 is not None:
+			x1_v = x2[i * size: (i + 1) * size]
+			x1_t = np.delete(x1, np.s_[i * size: (i + 1) * size], 0)
 
-		x1_t = np.delete(x1, np.s_[i*size : (i+1)*size], 0)
-		x2_t = np.delete(x2, np.s_[i*size : (i+1)*size], 0)
-		y_t = np.delete(y, np.s_[i*size : (i+1)*size], 0)
+		if x2 is not None:
+			x2_v = x2[i*size : (i+1)*size]
+			x2_t = np.delete(x2, np.s_[i * size: (i + 1) * size], 0)
 
-		t = (x1_t,x2_t,y_t)
+		y_v = y[i * size: (i + 1) * size]
+		y_t = np.delete(y, np.s_[i * size: (i + 1) * size], 0)
+
+		t = (x1_t, x2_t, y_t)
 		v = (x1_v,x2_v,y_v)
 
 
 		split_list.append((t,v))
 
-	x1_v = x1[(k-1)*size :]
-	x2_v = x2[(k-1)*size :]
-	y_v = y[(k-1)*size :]
+	if x1 is not None:
+		x1_v = x1[(k-1)*size :]
+		x1_t = np.delete(x1, np.s_[(k - 1) * size:], 0)
 
-	x1_t = np.delete(x1, np.s_[(k-1)*size :], 0)
-	x2_t = np.delete(x2, np.s_[(k-1)*size :], 0)
+	if x2 is not None:
+		x2_v = x2[(k-1)*size :]
+		x2_t = np.delete(x2, np.s_[(k-1)*size :], 0)
+
+	y_v = y[(k - 1) * size:]
 	y_t = np.delete(y, np.s_[(k-1)*size :], 0)
 
 	t = (x1_t,x2_t,y_t)
