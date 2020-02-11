@@ -12,7 +12,16 @@ class Log_Regression:
         self.stop_cond = eps
         self.max_iterations = m
         self.reg_constant = reg
+        self.its_list = [] # for keeping track of average number of iterations
         self.w = -1
+
+
+    def compute_avg_its(self):
+    	avg = 0
+    	for i in self.its_list:
+    		avg += i 
+    	avg /= len(self.its_list)
+    	return avg
 
     # w Dx1
     # x NxD
@@ -45,6 +54,7 @@ class Log_Regression:
             w = w - lr * g
             its = its + 1
         print("Terminating gradient descent at iterations: {}".format(its))
+        self.its_list.append(its)
         return w
 
     # for multiclass classification
