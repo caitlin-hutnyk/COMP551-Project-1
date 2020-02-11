@@ -75,7 +75,7 @@ class Log_Regression:
         y_hat = np.zeros((n, 1))
         log = self.logistic(self.w, X)
 
-        print(log)
+        # print(log)
 
         # categorical!!
         if log.shape[1] != 1:
