@@ -32,41 +32,41 @@ def computeLikelihoodBernoulli(X, Y):
     for y in Y:
         if y == 1:
             total_y1 += 1
+    total_y0 = N - total_y1
+
+    for i in range(2):
+        # get all indexes where c = 0, or c = 1
+        if i == 0:
+            c_index = np.where(Y == 0)[0]
+            total = total_y0
         else:
-            total_y0 += 1
+            c_index = np.nonzero(Y)[0]
+            total = total_y1
 
-    for d in range(D):
-        # set our counters to 0
-        y0, y1 = 0, 0
-
-        # for each instance n...
-        for n in range(N):
-            # identify the feature value as 1 or 0 to count
-            if X[n][d] == 1:
-                # and increment label count accordingly
-                if Y[n] == 1:
-                    y1 = y1 + 1
-                else:
-                    y0 = y0 + 1
-
-        # loop over all instances N is complete, can compute likelihoods of
-        # c = 0 and c = 1 for feature d
-        w[d][0] = y0/total_y0
-        w[d][1] = y1/total_y1
+        for d in range(D):
+            # instances satisfying the condition xd = 1
+            b_condition = 0
+            # for each instance n...
+            for c in c_index:
+                if X[c][d] == 1:
+                    b_condition += 1
+            w[d][i] = b_condition / total
+            # print("feature d: {}, satis b condition: {} of total: {}".format(d, b_condition, total))
+            # print("bernoulli likelihood for feature {} is {} ".format(d, w[d][i]))
 
     # normalise
-    for d in range(D):
-        maxval = max(w[d][0], w[d][1])
-        if maxval > 0.001:
-            w[d][0] = w[d][0]/maxval
-            w[d][1] = w[d][1]/maxval
+    # for d in range(D):
+    #     maxval = max(w[d][0], w[d][1])
+    #     if maxval > 0.001:
+    #         w[d][0] = w[d][0]/maxval
+    #         w[d][1] = w[d][1]/maxval
 
     # for i in range(5):
     #     print("The likelihoods of feature {} having class 0: {} class 1: {}".format(i, w[i][0], w[i][1]))
 
     return w
 
-def computeLikelihoodGaussian(X, Y):
+def computeGaussian(X, Y):
     N, D = X.shape
     mean, stdev = np.zeros((D, 2)), np.zeros((D, 2))
     w = np.zeros((D, 2))
@@ -83,6 +83,8 @@ def computeLikelihoodGaussian(X, Y):
         mean[:, i] = np.mean(X[c_index, :], 0)
         stdev[:, i] = np.std(X[c_index, :], 0)
 
+    return mean, stdev
+
     # print("the mean and stdev of for each class-feature pair: ")
     # # so we don't go out of bounds when printing...
     # m = X.shape[0]
@@ -97,22 +99,29 @@ def computeLikelihoodGaussian(X, Y):
         for d in range(D):
             likelihood = 0
             for n in range (N):
-                likelihood = np.log(1/np.sqrt(np.pi*2)) + (-0.5*(X[n][d] - mean[d][i])**2)
+                likelihood = 0.5*(X[n][d] - mean[d][i])**2
             w[d][i] = -1 * likelihood
 
     # normalise
-    for d in range(D):
-        m = max(w[d][0], w[d][1])
-        if m > 0.001:
-            w[d][0] = w[d][0]/m
-            w[d][1] = w[d][1]/m
+    # for d in range(D):
+    #     m = max(w[d][0], w[d][1])
+    #     if m > 0.001:
+    #         w[d][0] = w[d][0]/m
+    #         w[d][1] = w[d][1]/m
     return w
 
-def posterior(priors, w, x):
+def posterior(priors, w, w_gauss, x):
     N = x.shape[0]
     D = x.shape[1]
     post = np.ones((N, 2))
     s = 0
+
+    # calculate bernoulli posterior probabilities
+    if w is not None:
+
+    # calculate gaussian posterior probabilities
+    if w_gauss is not None:
+        
     # for each class prior,
     for i in range(len(priors)):
         # and for each feature,
@@ -129,13 +138,6 @@ def predict(posterior):
         if posterior[i][0] > posterior[i][1]:
             y_hat[i] = 0
     return y_hat
-
-def assess(Y, y_hat):
-    correct = 0
-    for i in range(Y.shape[0]):
-        if Y[i] == y_hat[i]:
-            correct += 1
-    return correct
 
 class NaiveBayes:
     pass
