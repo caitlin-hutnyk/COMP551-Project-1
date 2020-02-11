@@ -6,7 +6,7 @@ import LogRegression
 from sklearn.utils import shuffle
 import matplotlib.pyplot as plt
 
-def run_k_folds(model, fold_list):
+def run_k_folds(params, fold_list):
 	perf = 0
 	for train_validate_set in fold_list:
 
@@ -18,7 +18,8 @@ def run_k_folds(model, fold_list):
 
 		# print("train shape {} type {}" .format(train_X.shape, train_X.dtype))
 		# print("v shape {} type {}".format(validate_X.shape, validate_X.dtype))
-
+		x,y,z = params
+		model = LogRegression.Log_Regression(x,y,z)
 		model.fit(train_X, train_y)
 		y_h = model.predict(validate_X)
 
@@ -252,11 +253,10 @@ def k_fold_split(x1, x2, y, k):
 # list of iteration lengths
 def test_lr_vs_its(dataset, lr_list):
 	x, y, x_t, y_t = testImport.read_data(dataset, 1)
-	folds = k_fold(x,y,5)
 	result = []
 	for lr in lr_list:
 		model = LogRegression.Log_Regression(lr, 0.005, 25000)
-		run_k_folds(model, folds)
+		model.fit(x,y)
 		result.append(model.compute_avg_its())
 	return result
 
@@ -274,8 +274,7 @@ def test_lr_vs_perf(dataset, lr_list):
 	folds = k_fold(x,y,5)
 	result = []
 	for lr in lr_list:
-		model = LogRegression.Log_Regression(lr, 0.005, 25000)
-		perf = run_k_folds(model, folds)
+		perf = run_k_folds((lr, 0.005, 25000), folds)
 		result.append(perf)
 	return result
 
@@ -343,4 +342,6 @@ def test():
 	plt.show()
 
 if __name__ == "__main__":
-	d_vs_perf([100, 75, 50, 25, 20, 15, 10, 5])
+	lr_vs_its([2,1.75,1.5,1.25,1,0.75,0.5,0.25,0.1])
+	plt.clf()
+	lr_vs_perf([2,1.75,1.5,1.25,1,0.75,0.5,0.25,0.1])
