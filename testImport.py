@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 import constant
-from sklearn.utils import shuffle
 from sklearn.preprocessing import normalize
+from sklearn.utils import shuffle
 
 np.set_printoptions(threshold=np.inf)
 pd.set_option('display.max_columns', 500)
@@ -27,6 +27,7 @@ def read_data(which, type_):
 
 		# convert from panda data frame to numpy arrays
 		data_new_arr = pd.DataFrame(data_new).to_numpy()
+		data_new_arr = shuffle(data_new_arr)
 
 		split = int(np.shape(data_new_arr)[0] * 0.8)
 		# print (data_new_arr.shape)
@@ -64,6 +65,7 @@ def read_data(which, type_):
 
 		# convert from panda data frame to numpy arrays
 		data_new_arr = pd.DataFrame(data_new).to_numpy()
+		data_new_arr = shuffle(data_new_arr)
 		# print (data_new_arr.shape)
 		split = int(np.shape(data_new_arr)[0] * 0.8)
 
@@ -101,6 +103,7 @@ def read_data(which, type_):
 
 		# convert from panda data frame to numpy arrays
 		data_new_arr = pd.DataFrame(data_new).to_numpy()
+		data_new_arr = shuffle(data_new_arr)
 		# print (data_new_arr.shape)
 		split = int(np.shape(data_new_arr)[0] * 0.8)
 
@@ -133,6 +136,7 @@ def read_data(which, type_):
 
 		# convert from panda data frame to numpy arrays
 		data_new_arr = pd.DataFrame(data_new).to_numpy()
+		data_new_arr = shuffle(data_new_arr)
 		# print(data_new_arr.shape)
 
 		split = int(np.shape(data_new_arr)[0] * 0.8)
