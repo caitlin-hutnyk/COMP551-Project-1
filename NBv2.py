@@ -14,15 +14,14 @@ def computePrior(Y, dataset):
         c1 = 0
         for y in Y:
             if y == 1:
-                c1 = c1 + 1
+                c1 += 1
         c0 = Y.shape[0] - c1
         c0, c1 = c0/Y.shape[0], c1/Y.shape[0]
-        print("in computePrior for dataset {}".format(dataset))
-        print("instances: {}, class 0 prior: {}, class 1 prior: {}" .format(Y.shape[0], c0, c1))
+        # print("in computePrior for dataset {}".format(dataset))
+        # print("instances: {}, class 0 prior: {}, class 1 prior: {}" .format(Y.shape[0], c0, c1))
         return c0, c1
 
 def computeLikelihoodBernoulli(X, Y):
-    print("in computeLikelihoodBernoulli")
     # X is a NxD design matrix
     # Y is a Nx1 label vector
     N, D = X.shape
@@ -32,10 +31,9 @@ def computeLikelihoodBernoulli(X, Y):
     # compute denominator
     for y in Y:
         if y == 1:
-            total_y1 = total_y1 + 1
+            total_y1 += 1
         else:
-            total_y0 = total_y0 + 1
-    print("y = 0:{}, y = 1:{} of total {}".format(total_y0, total_y1, N))
+            total_y0 += 1
 
     for d in range(D):
         # set our counters to 0
@@ -63,21 +61,20 @@ def computeLikelihoodBernoulli(X, Y):
             w[d][0] = w[d][0]/maxval
             w[d][1] = w[d][1]/maxval
 
-    for i in range(5):
-        print("The likelihoods of feature {} having class 0: {} class 1: {}".format(i, w[i][0], w[i][1]))
+    # for i in range(5):
+    #     print("The likelihoods of feature {} having class 0: {} class 1: {}".format(i, w[i][0], w[i][1]))
 
     return w
 
 def computeLikelihoodGaussian(X, Y):
-    print("in computeLikelihoodGaussian")
     N, D = X.shape
     mean, stdev = np.zeros((D, 2)), np.zeros((D, 2))
     w = np.zeros((D, 2))
 
     for i in range(2):
         # get all indexes where c = 0, or c = 1
-        if i ==  0:
-            c_index = np.where(Y==0)[0]
+        if i == 0:
+            c_index = np.where(Y == 0)[0]
         else:
             c_index = np.nonzero(Y)[0]
 
@@ -86,14 +83,14 @@ def computeLikelihoodGaussian(X, Y):
         mean[:, i] = np.mean(X[c_index, :], 0)
         stdev[:, i] = np.std(X[c_index, :], 0)
 
-    print("the mean and stdev of for each class-feature pair: ")
-    # so we don't go out of bounds...
-    m = X.shape[0]
-    if (m > 6):
-        m = 6
-    for i in range(m):
-        print("class 0, feature {}, mean: {}, stdev: {}".format(i, mean[i][0], stdev[i][0]))
-        print("class 1, feature {}, mean: {}, stdev: {}".format(i, mean[i][1], stdev[i][1]))
+    # print("the mean and stdev of for each class-feature pair: ")
+    # # so we don't go out of bounds when printing...
+    # m = X.shape[0]
+    # if (m > 6):
+    #     m = 6
+    # for i in range(m):
+    #   print("class 0, feature {}, mean: {}, stdev: {}".format(i, mean[i][0], stdev[i][0]))
+    #    print("class 1, feature {}, mean: {}, stdev: {}".format(i, mean[i][1], stdev[i][1]))
 
     # calculate log likelihood, with var = 1
     for i in range(2):
@@ -109,29 +106,32 @@ def computeLikelihoodGaussian(X, Y):
         if m > 0.001:
             w[d][0] = w[d][0]/m
             w[d][1] = w[d][1]/m
-        print("The gaussian likelihoods of feature {} having class 0: {} class 1: {}".format(d, w[d][0], w[d][1]))
-
     return w
 
-def posterior(prior, w, x):
-    D = x.shape[1]
+def posterior(priors, w, x):
     N = x.shape[0]
+    D = x.shape[1]
+    post = np.ones((N, 2))
     s = 0
-    for d in range(D):
-        s += w[d] * x[d]
-    return s
+    # for each class prior,
+    for i in range(len(priors)):
+        # and for each feature,
+        for n in range(N):
+            for d in range(D):
+                s += x[n][d] * w[d][i]
+            post[n][i] = (s) * priors[i]
+    return post
 
 def predict(posterior):
+    # posterior is a N x 2 matrix of posterior probability of each class-feature pair
     y_hat = np.ones((posterior.shape[0], 1))
     for i in range(posterior.shape[0]):
         if posterior[i][0] > posterior[i][1]:
             y_hat[i] = 0
-        else:
-            y_hat[i] = 1
     return y_hat
 
 def assess(Y, y_hat):
-    correct = 0;
+    correct = 0
     for i in range(Y.shape[0]):
         if Y[i] == y_hat[i]:
             correct += 1
