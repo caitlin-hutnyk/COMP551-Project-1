@@ -3,22 +3,21 @@ import numpy as np
 # require X to be split up into X_cat and X_con
 class Naive_Bayes:
 
-	self.prior = -1
-	self.posterior = -1
-	self.w = -1
-	self.mean = -1
-	self.stdev = -1
-	self.datatype = -1
 	def __init__(self):
-		pass
+		self.priors = -1
+		self.posterior = -1
+		self.w = -1
+		self.mean = -1
+		self.stdev = -1
+		self.datatype = -1
+
 
 	def fit(self, x_con, x_cat, y):
 		if y.shape[1] == 1:
 			y = self.convertY(y)
-
-		self.priors = self.computePrior(y)
 		self.datatype = self.datatype(x_cat, x_con)
 
+		self.priors = self.computePrior(y)
 		if self.datatype is "categorical" or "mixed":
 			self.w = self.computeLikelihoodBernoulli(x_cat, y)
 
@@ -26,15 +25,7 @@ class Naive_Bayes:
 			self.mean, self.stdev = self.computeGaussian(x_con, y)
 
 	def predict(self, x_con, x_cat):
-		if self.datatype is "categorical":
-			self.posterior = self.calculatePosterior(self.priors, self.w, None, x_cat, None)
-
-		elif self.datatype is "gaussian":
-			self.posterior = self.calculatePosterior(self.priors, None, self.mean, None, x_con)
-
-		else:
-			self.posterior = self.calculatePosterior(self.priors, self.w, self.mean, x_cat, x_con)
-
+		self.calculatePosterior(self, x_con, x_cat)
 		y_hat = self.predict(self.posterior)
 		return y_hat
 
@@ -115,7 +106,7 @@ class Naive_Bayes:
 		C = self.priors.shape[0]
 
 		# calculate bernoulli posterior probabilities
-		if w is not None:
+		if self.datatype is "categorical" or "mixed":
 			N = x_cat.shape[0]
 			D = x_cat.shape[1]
 			post_cat = np.zeros((N, C))
@@ -129,7 +120,7 @@ class Naive_Bayes:
 				post_cat[:, i] /= max_post_val
 
 		# calculate gaussian posterior probabilities
-		if mean is not None:
+		if self.datatype is "gaussian" or "mixed":
 			N = x_con.shape[0]
 			D = x_con.shape[1]
 			post_con = np.zeros((N, C))
@@ -144,19 +135,20 @@ class Naive_Bayes:
 				post_con[:, i] /= max_post_val
 
 		# return valid posterior probabilities
-		if post_cat is not None:
+		if self.datatype is "categorical":
+			self.posterior = post_cat
+
+		elif self.datatype is "gaussian":
+			self.posterior = post_con
+
+		else:
 			N = post_cat.shape[0]
 			post = np.zeros((N, C))
-			if post_con is not None:
-				for c in range(C):
-					for n in range(N):
-						post[n][c] = post_cat[n][c] * post_con[n][c]
-			else:
-				post = post_cat
-		else:
-			post = post_con
+			for c in range(C):
+				for n in range(N):
+					post[n][c] = post_cat[n][c] * post_con[n][c]
+			self.posterior = post
 
-		return post
 
 	def predict(self, posterior):
 		# posterior is a N x 2 matrix of posterior probability of each class-feature pair
