@@ -12,6 +12,10 @@ class Naive_Bayes:
 	def __init__(self):
 		pass
 
-	
+	def fit(self, x_con, x_cat, y):
+		pass
+
+	def predict(self, x_con, x_cat):
+		pass
 
 	

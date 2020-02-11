@@ -308,7 +308,29 @@ def n_vs_perf(n_list):
 		plt.xlabel('dataset size')
 		plt.ylabel('performance')
 	plt.legend(['ionosphere', 'census', 'poker hands', 'credit rating'])
-	plt.savefig('log_r_testing/n_vs_perf')
+	plt.savefig('log_r_testing/n_vs_perf2')
+
+def test_d_vs_perf(dataset, d_list):
+	x, y, x_t, y_t = testImport.read_data(dataset, 1)
+	print(x.shape[1])
+	perf_list = []
+	for d in d_list:
+		xs, xs_t = less_features(x, x_t, d)
+		model = LogRegression.Log_Regression(1,0.005,10000)
+		model.fit(xs, y)
+		perf = evaluate_acc(y_t, model.predict(xs_t))
+		perf_list.append(perf)
+	return perf_list
+# test dataset size vs performance on test data
+# for logistic regression
+def d_vs_perf(d_list):
+	for i in range(1,5):
+		perf_list = test_d_vs_perf(i, d_list)
+		plt.plot(d_list, perf_list)
+		plt.xlabel('features size')
+		plt.ylabel('performance')
+	plt.legend(['ionosphere', 'census', 'poker hands', 'credit rating'])
+	plt.savefig('log_r_testing/d_vs_perf') 
 
 def test():
 	lr_list = [2,1.75,1.5,1.25,1,0.75,0.5,0.25,0.1]
@@ -321,9 +343,4 @@ def test():
 	plt.show()
 
 if __name__ == "__main__":
-	plt.clf()
-	lr_vs_perf([2,1.75,1.5,1.25,1,0.75,0.5,0.25,0.1])
-	plt.clf()
-	lr_vs_its([2,1.75,1.5,1.25,1,0.75,0.5,0.25,0.1])
-	plt.clf()
-	n_vs_perf([50000, 25000, 10000, 5000, 1000, 500, 200, 100])
+	d_vs_perf([100, 75, 50, 25, 20, 15, 10, 5])
