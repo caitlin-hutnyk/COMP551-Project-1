@@ -95,12 +95,7 @@ def computeGaussian(X, Y):
     #    print("class 1, feature {}, mean: {}, stdev: {}".format(i, mean[i][1], stdev[i][1]))
 
     # calculate log likelihood, with var = 1
-    for i in range(2):
-        for d in range(D):
-            likelihood = 0
-            for n in range (N):
-                likelihood = 0.5*(X[n][d] - mean[d][i])**2
-            w[d][i] = -1 * likelihood
+
 
     # normalise
     # for d in range(D):
@@ -110,25 +105,47 @@ def computeGaussian(X, Y):
     #         w[d][1] = w[d][1]/m
     return w
 
-def posterior(priors, w, w_gauss, x):
-    N = x.shape[0]
-    D = x.shape[1]
-    post = np.ones((N, 2))
-    s = 0
+def posterior(priors, w, w_gauss, x_cat, x_con):
+    post_cat, post_con = None, None
 
     # calculate bernoulli posterior probabilities
     if w is not None:
+        N = x_cat.shape[0]
+        D = x_cat.shape[1]
+        post_cat = np.zeros((N, 2))
+
+        for i in range(len(priors)):
+            for idx, row in enumerate(x_cat):
+                for d in range(D):
+                    post_cat[idx][i] += w[d][i] * row[d]
+                post_cat[idx][i] *= priors[i]
+            max_post_val = np.max(post_cat[:, i])
+            post_cat[:, i] /= max_post_val
 
     # calculate gaussian posterior probabilities
     if w_gauss is not None:
-        
-    # for each class prior,
-    for i in range(len(priors)):
-        # and for each feature,
-        for n in range(N):
-            for d in range(D):
-                s += x[n][d] * w[d][i]
-            post[n][i] = (s) * priors[i]
+        mu, stdv = w_gauss
+        N = x_con.shape[0]
+        D = x_con.shape[1]
+        post_con = np.zeros((N, 2))
+
+        for i in range(len(priors)):
+            for idx, row in enumerate(x_con):
+                likelihood = 0
+                for d in range(D):
+                    likelihood += 0.5 * ((row[d] - mu[d][i]) ** 2)
+                print(likelihood)
+                post_con[idx][i] = np.exp(np.log(priors[i]) + (-1 * likelihood))
+
+    # return valid posterior probabilities
+    if post_cat is not None:
+        if post_con is not None:
+            post = np.append(post_cat, post_con, axis=1)
+        else:
+            post = post_cat
+    else:
+        post = post_con
+
     return post
 
 def predict(posterior):

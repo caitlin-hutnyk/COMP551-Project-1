@@ -30,29 +30,29 @@ def main():
         t_cat, t_con, t_y = train
         v_cat, v_con, v_y = validate
 
-        if v_cat is None and v_con is not None:
-            v_x = v_con
-        elif v_con is None and v_cat is None:
-            v_x = v_cat
-        else:
-            v_x = np.append(v_cat, v_con, axis=1)
+        # if v_cat is None and v_con is not None:
+        #     v_x = v_con
+        # elif v_con is None and v_cat is None:
+        #     v_x = v_cat
+        # else:
+        #     v_x = np.append(v_cat, v_con, axis=1)
 
         # calculate prior and likelihoods with training data
         priors = nb.computePrior(t_y, dataset)
 
         if t_cat is not None and t_con is None:
             w_cat = nb.computeLikelihoodBernoulli(t_cat, t_y)
-            post = nb.posterior(priors, w_cat, None, v_x)
+            post = nb.posterior(priors, w_cat, None, v_cat, None)
 
         elif t_con is not None and t_cat is None:
             w_gauss = nb.computeGaussian(t_con, t_y)
-            post = nb.posterior(priors, None, w_gauss, None, v_x)
+            post = nb.posterior(priors, None, w_gauss, None, v_con)
 
         else:
             w_cat = nb.computeLikelihoodBernoulli(t_cat, t_y)
             w_gauss = nb.computeGaussian(t_con, t_y)
             # w = np.append(w_cat, w_cont, axis=0)
-            post = nb.posterior(priors, w_cat, w_gauss, v_x)
+            post = nb.posterior(priors, w_cat, w_gauss, v_cat, v_con)
 
         # calculate posterior probabilities of validation set and evaluate performance
 
