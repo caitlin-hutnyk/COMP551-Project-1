@@ -20,9 +20,6 @@ def computePrior(Y, dataset):
                 count += 1
         priors[c] = count / N
 
-        # if priors[c] == 0:
-        #     priors[c] = 0.00000000001
-
     return priors
 
 
@@ -35,23 +32,9 @@ def computeLikelihoodBernoulli(X, Y, priors):
     C = Y.shape[1]
     w = np.zeros((D, C))
 
-    # total_y0, total_y1 = 0, 0
-    #
-    # # compute denominator
-    # for y in Y:
-    #     if y == 1:
-    #         total_y1 += 1
-    # total_y0 = N - total_y1
-
-    for i in range(len(priors)):
+    for i in range(priors.shape[0]):
         # get all indexes where c = 0, or c = 1
         c_index = np.nonzero(Y[i])[0]
-        # if i == 0:
-        #     c_index = np.where(Y == 0)[0]
-        #     #total = total_y0
-        # else:
-        #     c_index = np.nonzero(Y)[0]
-        #     # total = total_y1
 
         for d in range(D):
             # instances satisfying the condition xd = 1
@@ -75,15 +58,6 @@ def computeGaussian(X, Y):
         # get all indexes where c = 0, or c = 1
         c_index = np.nonzero(Y[i])[0]
 
-        # for i in range(2):
-        #     # get all indexes where c = 0, or c = 1
-        #     if i == 0:
-        #     c_index = np.where(Y == 0)[0]
-        # else:
-        #     c_index = np.nonzero(Y)[0]
-
-        # calculate the mean and stdev of per feature for all instances, depending on
-        # their class placement
         mean[:, i] = np.mean(X[c_index, :], 0)
         stdev[:, i] = np.std(X[c_index, :], 0)
 
@@ -102,10 +76,10 @@ def posterior(priors, w, w_gauss, x_cat, x_con):
         post_cat = np.zeros((N, C))
 
         for i in range(C):
-            for idx, row in enumerate(x_cat):
+            for n in range(N):
                 for d in range(D):
-                    post_cat[idx][i] += w[d][i] * row[d]
-                post_cat[idx][i] *= priors[i]
+                    post_cat[n][i] += (w[d][i] * x_cat[n][d])
+                post_cat[n][i] *= priors[i]
             max_post_val = np.max(post_cat[:, i])
             post_cat[:, i] /= max_post_val
 
@@ -128,12 +102,11 @@ def posterior(priors, w, w_gauss, x_cat, x_con):
     # return valid posterior probabilities
     if post_cat is not None:
         N = post_cat.shape[0]
-        C = post_cat.shape[1]
         post = np.zeros((N, C))
         if post_con is not None:
             for c in range(C):
                 for n in range(N):
-                    post[n][i] = post_cat[n][i] * post_con[n][i]
+                    post[n][c] = post_cat[n][c] * post_con[n][c]
         else:
             post = post_cat
     else:
@@ -147,8 +120,6 @@ def predict(posterior):
     # and N x C for poker hands
     N = posterior.shape[0]
     C = posterior.shape[1]
-    print("IN PREDICT")
-    print(posterior.shape)
     y_hat = np.zeros((N, C))
 
     for n in range(N):
@@ -157,13 +128,8 @@ def predict(posterior):
         for c in range(C):
             if posterior[n][c] > class_max:
                 class_max, class_index = posterior[n][c], c
-        print("class max: {} from class {}".format(class_max, c))
-        print("CLASS 0 {} ".format(posterior[n][0]))
+
         y_hat[n][class_index] = 1
-
-    print(y_hat[:20,:])
-
-
 
     return y_hat
 

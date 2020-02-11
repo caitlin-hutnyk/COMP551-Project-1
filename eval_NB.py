@@ -13,15 +13,18 @@ def evaluate_acc(y, y_hat):
 
     if np.shape(y) != np.shape(y_hat):
         print("error: y != y_h")
-    for c in range(C):
-        for n in range(N):
-            if y[n][c] == y_hat[n][c]:
+    for n in range(N):
+        y_row = y[n, :]
+        y_idx = np.nonzero(y_row)
+        y_hat_row = y_hat[n, :]
+        y_hat_idx = np.nonzero(y_hat_row)
+        if (y_idx == y_hat_idx):
                 success += 1
     return success / N
 
 
 def main():
-    dataset = constant.CENSUS
+    dataset = constant.IONOSPHERE
     X_con, X_cat, Y, test_con, test_cat, test_y = read_data(dataset, 0)
 
     train_validation_sets = k_fold_split(X_cat, X_con, Y, 5)
