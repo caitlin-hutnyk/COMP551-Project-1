@@ -3,7 +3,6 @@ import pandas as pd
 
 import testImport
 import LogRegression
-import eval_model
 from sklearn.utils import shuffle
 
 def run_k_folds(model, fold_list):
@@ -28,7 +27,7 @@ def run_k_folds(model, fold_list):
 		# print("y label: {}" .format(train_y.dtype))
 		# print("y predicted: {}" .format(y_h.dtype))
 
-		percent = eval_model.evaluate_acc(validate_y, y_h)
+		percent = evaluate_acc(validate_y, y_h)
 		perf += (percent)
 	perf /= len(fold_list)
 	return perf
@@ -40,18 +39,20 @@ def run_k_folds(model, fold_list):
 # n_sizes, d_sizes is list of sizes for cases/features you want to try
 # folds is how many folds to run in k-fold
 def test_model_log(dataset, lr_list, eps_list, max_list, n_sizes, d_sizes, folds, reg_list = None):
-	x, y, x_t, y_t = testImport.read_data(1, dataset)
+	x, y, x_t, y_t = testImport.read_data(dataset, 1)
 
 	# currently don't combine removing features and test cases
 	# tests each n_size with all the other stuff
 	n_performances = []
 	for size in n_sizes:
 		x_s, y_s = less_cases_together(x,y,size)
+		'''
 		print(x_s.shape)
 		print(y_s.shape)
 		print(x_t.shape)
 		print(y_t.shape)
-		fold_list = eval_model.k_fold(x_s, y_s, folds)
+		'''
+		fold_list = k_fold(x_s, y_s, folds)
 		# performance is a list of tuples
 		# (lr, eps, m, (reg if its not none), k_fold performance, test performance)
 		performances = []
@@ -64,20 +65,20 @@ def test_model_log(dataset, lr_list, eps_list, max_list, n_sizes, d_sizes, folds
 						for r in reg_list:
 							model = LogRegression.Log_Regression(lr, eps, m, r)
 							k_perf = run_k_folds(model, fold_list)
-							real_perf = eval_model.evaluate_acc(y_t, model.predict(np.append(np.ones((x_t.shape[0], 1)), x_t, axis=1)))
-							performances.append((lr, eps, m, r, k_perf, real_perf))
+							real_perf = evaluate_acc(y_t, model.predict(np.append(np.ones((x_t.shape[0], 1)), x_t, axis=1)))
+							performances.append((size, lr, eps, m, r, k_perf, real_perf))
 					else: 
 						model = LogRegression.Log_Regression(lr, eps, m)
 						k_perf = run_k_folds(model, fold_list)
-						real_perf = eval_model.evaluate_acc(y_t, model.predict(np.append(np.ones((x_t.shape[0], 1)), x_t, axis=1)))
-						performances.append((lr, eps, m, k_perf, real_perf))
+						real_perf = evaluate_acc(y_t, model.predict(np.append(np.ones((x_t.shape[0], 1)), x_t, axis=1)))
+						performances.append((size, lr, eps, m, k_perf, real_perf))
 		n_performances.append(performances)
 					
 	#tests each d_size with all the other stuff
 	d_performances = []
 	for size in d_sizes:
 		x_s, x_t_s = less_features(x,x_t,size)
-		fold_list = eval_model.k_fold(x_s, y, folds)
+		fold_list = k_fold(x_s, y, folds)
 		# performance is a list of tuples
 		# (lr, eps, m, (reg if its not none), performance)
 		performances = []
@@ -90,18 +91,18 @@ def test_model_log(dataset, lr_list, eps_list, max_list, n_sizes, d_sizes, folds
 						for r in reg_list:
 							model = LogRegression.Log_Regression(lr, eps, m, r)
 							k_perf = run_k_folds(model, fold_list)
-							real_perf = eval_model.evaluate_acc(y_t, model.predict(np.append(np.ones((x_t_s.shape[0], 1)), x_t_s, axis=1)))
-							performances.append((lr, eps, m, r, k_perf, real_perf))
+							real_perf = evaluate_acc(y_t, model.predict(np.append(np.ones((x_t_s.shape[0], 1)), x_t_s, axis=1)))
+							performances.append((size, lr, eps, m, r, k_perf, real_perf))
 					else: 
 						model = LogRegression.Log_Regression(lr, eps, m)
 						k_perf = run_k_folds(model, fold_list)
-						real_perf = eval_model.evaluate_acc(y_t, model.predict(np.append(np.ones((x_t_s.shape[0], 1)), x_t_s, axis=1)))
-						performances.append((lr, eps, m, k_perf, real_perf))
+						real_perf = evaluate_acc(y_t, model.predict(np.append(np.ones((x_t_s.shape[0], 1)), x_t_s, axis=1)))
+						performances.append((size, lr, eps, m, k_perf, real_perf))
 		d_performances.append(performances)
 
 	return n_performances, d_performances
 
-def test_model_nb(dataset):
+def test_model_nb(dataset, n_sizes, d_sizes):
 	pass
 
 # runs test_model on both model types, all 4 datasets
@@ -111,8 +112,7 @@ def test_model_nb(dataset):
 def iterate(lr_list, eps_list, max_list, n_sizes, d_sizes, folds, reg_list = None):
 	log_r = []
 	nb = []
-
-	for i in range(4):
+	for i in range(1,5):
 		log_r.append(test_model_log(i, lr_list, eps_list, max_list, n_sizes, d_sizes, folds, reg_list))
 		nb.append(test_model_nb(i, lr_list, eps_list, max_list, n_sizes, d_sizes, folds, reg_list))
 	return (tuple(log_r), tuple(nb))
@@ -144,8 +144,113 @@ def less_features(x_train, x_test, many):
 	x_train, x_test = shuffle(x_train.T, x_test.T)
 	return x_train.T[:, :many], x_test.T[:,:many]
 
+def convert_y(y):
+    n,c = y.shape
+    print(y.shape)
+    result = []
+    for ar in y:
+        for j in range(len(ar)):
+            if ar[j]:
+                result.append(j)
+    print(len(result))
+    return np.array(result)
+
+# returns performance rate
+def evaluate_acc(y, y_hat):
+    success = 0
+    if np.shape(y) != np.shape(y_hat):
+        print("error: y != y_h")
+        print(y.shape)
+        print(y_hat.shape)
+        # raise SizeError('Size y != size yh')
+    if y.shape[1] != 1:
+        y = convert_y(y)
+        y_hat = convert_y(y_hat)
+    for i in range(np.shape(y)[0]):
+        if y[i] == y_hat[i]:
+            success += 1
+    return success/(np.shape(y)[0])
+
+# receoves X and Y appended to the end
+def k_fold(x, y, k):
+    split_list = []
+    size = int(x.shape[0] / k)
+
+    for i in range(k-1):
+        x_v = x[i*size : (i+1)*size]
+        y_v = y[i*size : (i+1)*size]
+
+        x_t = np.delete(x, np.s_[i*size : (i+1)*size], 0)
+        y_t = np.delete(y, np.s_[i*size : (i+1)*size], 0)
+
+        t = (x_t,y_t)
+        v = (x_v,y_v)
+
+
+        split_list.append((t,v))
+
+    x_v = x[(k-1)*size :]
+    y_v = y[(k-1)*size :]
+
+    x_t = np.delete(x, np.s_[(k-1)*size :], 0)
+    y_t = np.delete(y, np.s_[(k-1)*size :], 0)
+
+    t = (x_t,y_t)
+    v = (x_v,y_v)
+
+
+    split_list.append((t,v))
+
+    return split_list
+
+# for naive bayes, having x_con and x_cat split up
+def k_fold_split(x1, x2, y, k):
+    split_list = []
+    if x1 is None:
+        size = int(x2.shape[0] / k)
+    else:
+        size = int(x1.shape[0] / k)
+
+    for i in range(k-1):
+        # initialise to None in case we have no con or cat features in a dataset
+        x1_v, x1_t, x2_v, x2_t = None, None, None, None
+        if x1 is not None:
+            x1_v = x1[i * size: (i + 1) * size]
+            x1_t = np.delete(x1, np.s_[i * size: (i + 1) * size], 0)
+
+        if x2 is not None:
+            x2_v = x2[i*size : (i+1)*size]
+            x2_t = np.delete(x2, np.s_[i * size: (i + 1) * size], 0)
+
+        y_v = y[i * size: (i + 1) * size]
+        y_t = np.delete(y, np.s_[i * size: (i + 1) * size], 0)
+
+        t = (x1_t, x2_t, y_t)
+        v = (x1_v, x2_v, y_v)
+
+        split_list.append((t,v))
+
+    x1_v, x1_t, x2_v, x2_t = None, None, None, None
+    if x1 is not None:
+        x1_v = x1[(k-1)*size :]
+        x1_t = np.delete(x1, np.s_[(k - 1) * size:], 0)
+
+    if x2 is not None:
+        x2_v = x2[(k-1)*size :]
+        x2_t = np.delete(x2, np.s_[(k-1)*size :], 0)
+
+    y_v = y[(k - 1) * size:]
+    y_t = np.delete(y, np.s_[(k-1)*size :], 0)
+
+    t = (x1_t, x2_t, y_t)
+    v = (x1_v, x2_v, y_v)
+
+    split_list.append((t,v))
+
+    return split_list
+
 def test():
-	result = test_model_log(1, [1, 0.5, 1], [0.005], [20000], [500, 250, 100], [100], 5)
+	result = test_model_log(1, [1, 0.5, 1], [0.005], [20000], [2000, 500, 100], [100], 5)
 	print(result)
 
 if __name__ == "__main__":
