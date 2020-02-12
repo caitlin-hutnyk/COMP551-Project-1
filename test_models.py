@@ -3,6 +3,7 @@ import pandas as pd
 
 import testImport
 import LogRegression
+import NaiveBayes
 from sklearn.utils import shuffle
 import matplotlib.pyplot as plt
 
@@ -102,8 +103,16 @@ def test_model_log(dataset, lr_list, eps_list, max_list, n_sizes, d_sizes, folds
 
 	return n_performances, d_performances
 
-def test_model_nb(dataset, n_sizes, d_sizes):
-	pass
+def test_model_nb(dataset):
+	X_con, X_cat, Y, test_con, test_cat, test_y = testImport.read_data(dataset, 0)
+
+	model = NaiveBayes.NaiveBayes()
+	model.fit(X_con, X_cat, Y)
+	y_hat = model.predict(test_con, test_cat)
+
+	ac = evaluate_acc_NB(test_y, y_hat)
+	print(ac)
+
 
 # runs test_model on both model types, all 4 datasets
 # returns a tuple of tuples
@@ -170,6 +179,32 @@ def evaluate_acc(y, y_hat):
 		if y[i] == y_hat[i]:
 			success += 1
 	return success/(np.shape(y)[0])
+
+def evaluate_acc_NB(y, y_hat):
+	N = y.shape[0]
+	C = y.shape[1]
+	if C == 1:
+		y = convertY_NB(y)
+	success = 0
+
+	if np.shape(y) != np.shape(y_hat):
+		print("error: y != y_h")
+	for n in range(N):
+		y_row = y[n, :]
+		y_idx = np.nonzero(y_row)
+		y_hat_row = y_hat[n, :]
+		y_hat_idx = np.nonzero(y_hat_row)
+		if y_idx == y_hat_idx:
+			success += 1
+	return success / N
+
+def convertY_NB(y):
+	N = y.shape[0]
+	y = np.append(np.zeros((N, 1)), y, axis=1)
+	for n in range(N):
+		if y[n][1] == 0:
+			y[n][0] = 1
+	return y
 
 # receoves X and Y appended to the end
 def k_fold(x, y, k):
@@ -342,6 +377,8 @@ def test():
 	plt.show()
 
 if __name__ == "__main__":
-	lr_vs_its([2,1.75,1.5,1.25,1,0.75,0.5,0.25,0.1])
-	plt.clf()
-	lr_vs_perf([2,1.75,1.5,1.25,1,0.75,0.5,0.25,0.1])
+	# lr_vs_its([2,1.75,1.5,1.25,1,0.75,0.5,0.25,0.1])
+	# plt.clf()
+	# lr_vs_perf([2,1.75,1.5,1.25,1,0.75,0.5,0.25,0.1])
+	test_model_nb(1)
+

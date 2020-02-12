@@ -1,7 +1,8 @@
 import numpy as np
 
+
 # require X to be split up into X_cat and X_con
-class Naive_Bayes:
+class NaiveBayes:
 
 	def __init__(self):
 		self.priors = -1
@@ -11,24 +12,23 @@ class Naive_Bayes:
 		self.stdev = -1
 		self.datatype = -1
 
-
 	def fit(self, x_con, x_cat, y):
 		if y.shape[1] == 1:
 			y = self.convertY(y)
-		self.datatype = self.datatype(x_cat, x_con)
+		self.datatype = self.findDatatype(x_cat, x_con)
+		print(self.datatype)
 
 		self.priors = self.computePrior(y)
-		if self.datatype is "categorical" or "mixed":
+		if self.datatype == "categorical" or self.datatype == "mixed":
 			self.w = self.computeLikelihoodBernoulli(x_cat, y)
 
-		if self.datatype is "gaussian" or "mixed":
+		if self.datatype == "gaussian" or self.datatype == "mixed":
 			self.mean, self.stdev = self.computeGaussian(x_con, y)
 
 	def predict(self, x_con, x_cat):
-		self.calculatePosterior(self, x_con, x_cat)
-		y_hat = self.predict(self.posterior)
+		self.calculatePosterior(x_con, x_cat)
+		y_hat = self.compute_y_hat()
 		return y_hat
-
 
 	# returns priors Cx1
 	def computePrior(self, Y):
@@ -69,7 +69,7 @@ class Naive_Bayes:
 				y[n][0] = 1
 		return y
 
-	def datatype(self, x_cat, x_con):
+	def findDatatype(self, x_cat, x_con):
 		if x_cat is not None and x_con is None:
 			return "categorical"
 		elif x_con is not None and x_cat is None:
@@ -81,7 +81,6 @@ class Naive_Bayes:
 		# X is a NxD design matrix
 		# Y is a Nx2 label vector for datasets 1, 2 and 4
 		# Y is a NxC matrix for datasets 3
-
 		N, D = X.shape
 		C = Y.shape[1]
 		w = np.zeros((D, C))
@@ -101,12 +100,12 @@ class Naive_Bayes:
 
 		return w
 
-	def calculatePosterior(self, w, mean, x_cat, x_con):
+	def calculatePosterior(self, x_con, x_cat):
 		post_cat, post_con = None, None
 		C = self.priors.shape[0]
 
 		# calculate bernoulli posterior probabilities
-		if self.datatype is "categorical" or "mixed":
+		if self.datatype == "categorical" or self.datatype == "mixed":
 			N = x_cat.shape[0]
 			D = x_cat.shape[1]
 			post_cat = np.zeros((N, C))
@@ -114,13 +113,13 @@ class Naive_Bayes:
 			for i in range(C):
 				for n in range(N):
 					for d in range(D):
-						post_cat[n][i] += (w[d][i] * x_cat[n][d])
+						post_cat[n][i] += (self.w[d][i] * x_cat[n][d])
 					post_cat[n][i] *= self.priors[i]
 				max_post_val = np.max(post_cat[:, i])
 				post_cat[:, i] /= max_post_val
 
 		# calculate gaussian posterior probabilities
-		if self.datatype is "gaussian" or "mixed":
+		if self.datatype == "gaussian" or self.datatype == "mixed":
 			N = x_con.shape[0]
 			D = x_con.shape[1]
 			post_con = np.zeros((N, C))
@@ -129,16 +128,16 @@ class Naive_Bayes:
 				for n in range(N):
 					likelihood = 0
 					for d in range(D):
-						likelihood += 0.5 * ((x_con[n][d] - mean[d][i]) ** 2)
+						likelihood += 0.5 * ((x_con[n][d] - self.mean[d][i]) ** 2)
 					post_con[n][i] = np.exp(np.log1p(self.priors[i]) + (-1 * likelihood))
 				max_post_val = np.max(post_con[:, i])
 				post_con[:, i] /= max_post_val
 
 		# return valid posterior probabilities
-		if self.datatype is "categorical":
+		if self.datatype == "categorical":
 			self.posterior = post_cat
 
-		elif self.datatype is "gaussian":
+		elif self.datatype == "gaussian":
 			self.posterior = post_con
 
 		else:
@@ -149,20 +148,19 @@ class Naive_Bayes:
 					post[n][c] = post_cat[n][c] * post_con[n][c]
 			self.posterior = post
 
-
-	def predict(self, posterior):
+	def compute_y_hat(self):
 		# posterior is a N x 2 matrix of posterior probability of each class-feature pair
 		# and N x C for poker hands
-		N = posterior.shape[0]
-		C = posterior.shape[1]
+		N = self.posterior.shape[0]
+		C = self.posterior.shape[1]
 		y_hat = np.zeros((N, C))
 
 		for n in range(N):
 			class_max = -np.inf
 			class_index = -1
 			for c in range(C):
-				if posterior[n][c] > class_max:
-					class_max, class_index = posterior[n][c], c
+				if self.posterior[n][c] > class_max:
+					class_max, class_index = self.posterior[n][c], c
 
 			y_hat[n][class_index] = 1
 
