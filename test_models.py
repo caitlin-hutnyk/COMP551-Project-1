@@ -445,4 +445,4 @@ def test_both():
 	print(nb_res)
 
 if __name__ == "__main__":
-	val_vs_perf()
+	test_both()
