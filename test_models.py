@@ -424,9 +424,25 @@ def val_vs_perf():
 	print(k_p)
 	print(k_on_t_p)
 
-if __name__ == "__main__":
-	# lr_vs_its([2,1.75,1.5,1.25,1,0.75,0.5,0.25,0.1])
-	# plt.clf()
-	# lr_vs_perf([2,1.75,1.5,1.25,1,0.75,0.5,0.25,0.1])
-	test_model_nb(1)
+def test_both():
+	log_res = []
+	nb_res = []
+	for i in range(1,5):
+		x, y, x_test, y_test = testImport.read_data(i,1)
+		x_con, x_cat, y_, xt_con, xt_cat, yt = testImport.read_data(i,0)
 
+		log = LogRegression.Log_Regression(1, 0.005, 25000)
+		nb = NaiveBayes.NaiveBayes()
+
+		log.fit(x,y)
+		nb.fit(x_con, x_cat, y)
+
+		log_per = evaluate_acc(y_test, log.predict(x_test))
+		nb_per = evaluate_acc_NB(yt, nb.predict(xt_con, xt_cat))
+		log_res.append(log_per)
+		nb_res.append(nb_per)
+	print(log_res)
+	print(nb_res)
+
+if __name__ == "__main__":
+	val_vs_perf()
