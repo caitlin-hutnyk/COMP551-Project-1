@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import constant
 from sklearn.preprocessing import normalize
 from sklearn.utils import shuffle
 
