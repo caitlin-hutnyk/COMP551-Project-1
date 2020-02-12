@@ -29,9 +29,37 @@ def run_k_folds(params, fold_list):
 		# print("y predicted: {}" .format(y_h.dtype))
 
 		percent = evaluate_acc(validate_y, y_h)
-		perf += (percent)
+		perf += percent
 	perf /= len(fold_list)
 	return perf
+
+def run_k_folds_best(params, fold_list):
+	best_p = 0
+	best_model = -1
+	for train_validate_set in fold_list:
+
+		train, validate = train_validate_set
+		train_X, train_y = train
+		validate_X, validate_y = validate
+
+		# add first col of ones
+
+		# print("train shape {} type {}" .format(train_X.shape, train_X.dtype))
+		# print("v shape {} type {}".format(validate_X.shape, validate_X.dtype))
+		x,y,z = params
+		model = LogRegression.Log_Regression(x,y,z)
+		model.fit(train_X, train_y)
+		y_h = model.predict(validate_X)
+
+		# print("training set {} ".format(training_set_count))
+		# print("y label: {}" .format(train_y.dtype))
+		# print("y predicted: {}" .format(y_h.dtype))
+
+		percent = evaluate_acc(validate_y, y_h)
+		if percent > best_p:
+			best_p = percent
+			best_model = model
+	return model
 
 # runs tests for log_r
 # takes lots of parameters, to get a reasonable amount of data keep most lists size 1
@@ -333,6 +361,7 @@ def test_n_vs_perf(dataset, n_list):
 		perf = evaluate_acc(y_t, model.predict(x_t))
 		perf_list.append(perf)
 	return perf_list
+
 # test dataset size vs performance on test data
 # for logistic regression
 def n_vs_perf(n_list):
@@ -375,6 +404,25 @@ def test():
 	plt.xlabel('learning rate')
 	plt.ylabel('average iterations')
 	plt.show()
+
+def val_vs_perf():
+	full_p = []
+	k_p = []
+	k_on_t_p = []
+	for i in range(1,5):
+		x,y,x_t, y_t = testImport.read_data(i, 1)
+		full_model = LogRegression.Log_Regression(1, 0.005, 25000)
+		full_model.fit(x,y)
+		perf = evaluate_acc(y_t, full_model.predict(x_t))
+		full_p.append(perf)
+		perf = run_k_folds((1, 0.005, 25000), k_fold(x,y,5))
+		k_model = run_k_folds_best((1, 0.005, 25000), k_fold(x,y,5))
+		k_p.append(perf)
+		perf = evaluate_acc(y_t, k_model.predict(x_t))
+		k_on_t_p.append(perf)
+	print(full_p)
+	print(k_p)
+	print(k_on_t_p)
 
 if __name__ == "__main__":
 	# lr_vs_its([2,1.75,1.5,1.25,1,0.75,0.5,0.25,0.1])
