@@ -435,7 +435,7 @@ def test_both():
 		nb = NaiveBayes.NaiveBayes()
 
 		log.fit(x,y)
-		nb.fit(x_con, x_cat, y_)
+		nb.fit(x_con, x_cat, y)
 
 		log_per = evaluate_acc(y_test, log.predict(x_test))
 		nb_per = evaluate_acc_NB(yt, nb.predict(xt_con, xt_cat))
@@ -444,5 +444,45 @@ def test_both():
 	print(log_res)
 	print(nb_res)
 
+def test_nb_smaller_n():
+	n_list = [1000, 500, 400, 300, 250, 200, 150, 100, 75, 50, 40, 30, 20, 15, 10]
+	for i in range(1,5):
+		smaller_n = []
+		x_con, x_cat, y, xt_con, xt_cat, yt = testImport.read_data(i,0)
+		for n in n_list:
+			if x_con is not None and x_cat is not None:
+				x_con, x_cat, y = less_cases_separate(x_con, x_cat, y, n)
+			if x_con is not None:
+				x_con, y = less_cases_together(x_con, y, n)
+			else:
+				x_cat, y = less_cases_together(x_cat, y, n)
+			model = NaiveBayes.NaiveBayes()
+			model.fit(x_con, x_cat, y)
+			smaller_n.append(evaluate_acc_NB(yt, model.predict(xt_con, xt_cat)))
+		plt.plot(n_list, smaller_n)
+		plt.xlabel('N')
+		plt.ylabel('performance')
+	plt.legend(['ionosphere', 'census', 'poker', 'credit'])
+	plt.savefig('nb_testing/smaller_n')
+
+def test_nb_smaller_d():
+	d_list = [200, 100, 50, 40, 30, 25, 20, 10, 7, 5, 4, 3]
+	for i in range(1,5):
+		smaller_d = []
+		x_con, x_cat, y, xt_con, xt_cat, yt = testImport.read_data(i,0)
+		for d in d_list:
+			if x_con is not None:
+				x_con, xt_con = less_features(x_con, xt_con, d)
+			if x_cat is not None:
+				x_cat, xt_cat = less_features(x_cat, xt_cat, d)
+			model = NaiveBayes.NaiveBayes()
+			model.fit(x_con, x_cat, y)
+			smaller_d.append(evaluate_acc_NB(yt, model.predict(xt_con, xt_cat)))
+		plt.plot(d_list, smaller_d)
+		plt.xlabel('N')
+		plt.ylabel('performance')
+	plt.legend(['ionosphere', 'census', 'poker', 'credit'])
+	plt.savefig('nb_testing/smaller_d')
+
 if __name__ == "__main__":
-	test_both()
+	test_nb_smaller_n()
